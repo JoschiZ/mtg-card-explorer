@@ -15,7 +15,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SetExplorer.Client\SetExplorer.Client.csproj" />
-    <PackageReference Include="JetBrains.Annotations" Version="2025.2.4" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.*" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="10.*" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.*" />
