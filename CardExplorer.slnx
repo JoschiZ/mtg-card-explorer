@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/project-files/">
+    <File Path=".gitignore" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/SetExplorer.Client/SetExplorer.Client.csproj" />
+    <Project Path="src/SetExplorer/SetExplorer.csproj" />
+  </Folder>
+  <Folder Name="/tests/" />
+</Solution>
