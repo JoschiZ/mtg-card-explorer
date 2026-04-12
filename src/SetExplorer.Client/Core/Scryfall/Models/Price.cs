@@ -2,7 +2,7 @@ namespace SetExplorer.Scryfall.Models;
 
 using System.Text.Json.Serialization;
 
-public sealed class Price : BaseItem
+public sealed class Price
 {
     [JsonPropertyName("eur")]
     public decimal? Eur { get; set; }

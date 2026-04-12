@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.WebUtilities;
 using SetExplorer.Scryfall.Models;
 
@@ -10,7 +11,7 @@ public class ScryfallSearchClient : ScryfallBaseClient
     }
 
 
-    public async IAsyncEnumerable<Card> GetAllAsync(string query, CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<Card> GetAllAsync(string query, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var response = await SearchAsync(query, null, cancellationToken);
 

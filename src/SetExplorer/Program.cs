@@ -6,6 +6,7 @@ using SetExplorer.Client.Pages;
 using SetExplorer.Components;
 using SetExplorer.Components.Account;
 using SetExplorer.Data;
+using SetExplorer.Scryfall;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,8 @@ builder.Services.AddRazorComponents()
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
+builder.Services.AddScryfallSearchClient();
+
 
 builder.Services.AddAuthentication(options =>
     {

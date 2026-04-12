@@ -23,7 +23,8 @@ public abstract class ScryfallBaseClient
 
     protected async Task<T> GetFromJsonAsync<T>([StringSyntax(StringSyntaxAttribute.Uri), UriString("GET")]string url, CancellationToken cancellationToken = default)
     {
-        return await _httpClient.GetFromJsonAsync<T>(url, Options, cancellationToken) 
+        var httpResponse = await _httpClient.GetAsync(url, cancellationToken);
+        return await httpResponse.Content.ReadFromJsonAsync<T>(Options, cancellationToken) 
                ?? throw new NullReferenceException("Retrieved null response for some rea");
     }
 }
