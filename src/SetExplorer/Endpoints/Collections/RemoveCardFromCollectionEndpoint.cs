@@ -1,0 +1,48 @@
+using Microsoft.EntityFrameworkCore;
+using SetExplorer.Client.Core.Cards;
+using SetExplorer.Client.Core.Collections;
+using SetExplorer.Data;
+
+namespace SetExplorer.Endpoints.Collections;
+
+public record RemoveCardFromCollectionRequest
+{
+    public Guid CollectionId { get; init; }
+    public Guid CardId { get; init; }
+}
+
+public class RemoveCardFromCollectionEndpoint(ApplicationDbContext db) : FastEndpoints.Endpoint<RemoveCardFromCollectionRequest>
+{
+    public override void Configure()
+    {
+        Delete("/collections/{collectionId:guid}/cards/{cardId:guid}");
+    }
+
+    public override async Task HandleAsync(RemoveCardFromCollectionRequest req, CancellationToken ct)
+    {
+        var userId = this.GetUserId();
+        var collId = CollectionId.From(req.CollectionId);
+        var scryId = ScryfallCardId.From(req.CardId);
+
+        var collection = await db.Users
+            .Where(u => u.Id == userId)
+            .SelectMany(u => u.CardCollections)
+            .Include(c => c.Cards)
+            .FirstOrDefaultAsync(c => c.Id == collId, ct);
+
+        if (collection == null)
+        {
+            await SendNotFoundAsync(ct);
+            return;
+        }
+
+        var card = collection.Cards.FirstOrDefault(c => c.Id == scryId);
+        if (card != null)
+        {
+            collection.Cards.Remove(card);
+            await db.SaveChangesAsync(ct);
+        }
+
+        await SendOkAsync(ct);
+    }
+}

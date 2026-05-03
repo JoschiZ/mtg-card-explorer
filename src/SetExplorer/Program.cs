@@ -1,7 +1,11 @@
+using FastEndpoints;
+using FastEndpoints.Swagger;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
+using NSwag;
+using Scalar.AspNetCore;
 using SetExplorer.Client.Core.Scryfall;
 using SetExplorer.Client.Pages;
 using SetExplorer.Components;
@@ -23,6 +27,24 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
 builder.Services.AddScryfallSearchClient();
+builder.Services.AddFastEndpoints();
+builder.Services.SwaggerDocument(o =>
+{
+    o.DocumentSettings = s =>
+    {
+        s.Title = "CardExplorer API";
+        s.Version = "v1";
+        s.AddAuth("Identity.Application", new()
+        {
+            Type = OpenApiSecuritySchemeType.ApiKey,
+            Name = ".AspNetCore.Identity.Application",
+            In = OpenApiSecurityApiKeyLocation.Cookie,
+            Description = "Enter your .AspNetCore.Identity.Application cookie",
+        });
+    };
+});
+builder.Services.AddOpenApi();
+builder.Services.AddAntiforgery();
 
 
 builder.Services.AddAuthentication(options =>
@@ -53,6 +75,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    app.MapOpenApi();
+    app.MapScalarApiReference();
     app.UseWebAssemblyDebugging();
     app.UseMigrationsEndPoint();
 }
@@ -66,6 +90,10 @@ app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages:
 
 app.UseHttpsRedirection();
 
+app.UseFastEndpoints(config =>
+{
+    config.Endpoints.RoutePrefix = "api";
+});
 
 app.UseAntiforgery();
 
