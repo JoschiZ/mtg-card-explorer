@@ -15,12 +15,21 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SetExplorer.Client\SetExplorer.Client.csproj" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.*" />
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="10.*" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.*" />
-    <PackageReference Include="Extensions.MudBlazor.StaticInput" Version="4.*" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="10.0.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.7">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.7" />
+    <PackageReference Include="Extensions.MudBlazor.StaticInput" Version="4.1.0" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Folder Include="Data\Cards\" />
+    <Folder Include="Data\Migrations\" />
   </ItemGroup>
 
 </Project>

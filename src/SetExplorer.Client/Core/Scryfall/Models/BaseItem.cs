@@ -1,7 +1,6 @@
-namespace SetExplorer.Scryfall.Models;
-
 using System.Text.Json.Serialization;
 
+namespace SetExplorer.Client.Core.Scryfall.Models;
 
 public abstract class BaseItem
 {

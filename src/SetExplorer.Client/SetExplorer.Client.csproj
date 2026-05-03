@@ -19,6 +19,13 @@
     <PackageReference Include="MudBlazor" Version="9.*" />
 
     <PackageReference Include="JetBrains.Annotations" Version="2025.2.4" />
+
+    <PackageReference Include="Vogen" Version="8.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Pages\Collections\" />
+    <Folder Include="Pages\Explorations\" />
   </ItemGroup>
 
 </Project>

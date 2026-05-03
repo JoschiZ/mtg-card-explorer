@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace SetExplorer.Scryfall.Models;
+namespace SetExplorer.Client.Core.Scryfall.Models;
 
 public class ResultList<T> : BaseItem where T : BaseItem
 {

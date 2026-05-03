@@ -1,6 +1,6 @@
-namespace SetExplorer.Scryfall.Models;
 using System.Text.Json.Serialization;
 
+namespace SetExplorer.Client.Core.Scryfall.Models;
 
 public sealed class CardFace : BaseItem
 {

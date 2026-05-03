@@ -1,29 +1,95 @@
 ﻿@page "/"
-@using SetExplorer.Scryfall
-@using SetExplorer.Scryfall.Models
+@using SetExplorer.Client.Core.Collections
+@using SetExplorer.Client.Core.Scryfall
+@using SetExplorer.Client.Core.Scryfall.Models
 @inject ScryfallSearchClient SearchClient
 @inject ILogger<Home> Logger
 
 <PageTitle>Home</PageTitle>
 
-<MudTextField T="string" ValueChanged="@NewSearchStringAsync"></MudTextField>
+<MudCard Style="height: calc(100vh - 100px); display: flex; flex-direction: column;">
+    <MudCardActions>
+        <MudTextField Variant="Variant.Filled" Placeholder="set:sld" Label="Scryfall Search" T="string" ValueChanged="@NewSearchStringAsync"></MudTextField>
+    </MudCardActions>
+    <MudCardContent Style="flex-grow: 1; display: flex; flex-direction: column; overflow: hidden;">
+        @if (_cards.Count != 0)
+        {
+            <div style="flex: 1; min-height: 0;">
+                <MudCarousel Style="height: 100%" ItemsSource="_cards" ShowArrows="true" ShowBullets="false" SelectedIndex="_selectedIndex" SelectedIndexChanged="@SelectedIndexChangedAsync" AutoCycle="false">
+                    <ItemTemplate>
+                        <MudGrid Style="height: 100%" Justify="Justify.Center">
+                            <MudItem xs="6" Style="height: 100%">
+                                <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Style="height: 100%">
+                                    <MudImage Style="max-height: 100%; max-width: 100%" ObjectFit="ObjectFit.Contain" Src="@GetCardImageUrl(context)"></MudImage>
+                                </MudStack>
+                            </MudItem>
+                            <MudItem xs="6" Style="height: 100%">
+                                <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center" Style="height: 100%">
+                                    <MudCard Elevation="0" Style="max-height: 100%; overflow-y: auto;">
+                                        <MudCardHeader>
+                                            <CardHeaderContent>
+                                                <MudText Typo="Typo.h6">@context.Name</MudText>
+                                            </CardHeaderContent>
+                                        </MudCardHeader>
+                                        <MudCardContent>
+                                            <MudText Typo="Typo.body1">@context.OracleText</MudText>
+                                        </MudCardContent>
+                                    </MudCard>    
+                                </MudStack>
+                            </MudItem>
+                        </MudGrid>
+                    </ItemTemplate>
+                </MudCarousel>
+            </div>
+            <div style="flex: 1; min-height: 0; overflow-y: auto; margin-top: 16px;">
+                <MudGrid>
+                    @foreach (var container in _collections)
+                    {
+                        <MudItem xs="CardContainerSize">
+                            <MudCard>
+                                <MudCardHeader>
+                                    <MudText>@container.Name</MudText>
+                                </MudCardHeader>
+                                <MudCardActions>
+                                    <MudButton Size="Size.Small" FullWidth EndIcon="@Icons.Material.Outlined.AddCircle" Variant="Variant.Outlined" Color="Color.Success">Add</MudButton>
+                                </MudCardActions>
+                                <MudCardContent>
+                                    @foreach (var card in container.Cards)
+                                    {
+                                        <MudPaper Outlined>
+                                            <MudStack Row>
+                                               <MudSpacer></MudSpacer>
+                                               <MudDivider DividerType="DividerType.Middle" Vertical></MudDivider>
+                                               <MudIconButton Icon="@Icons.Material.Outlined.RemoveCircle"></MudIconButton>
+                                            </MudStack>
+                                        </MudPaper>
+                                    }
+                                </MudCardContent>
+                            </MudCard>
+                        </MudItem>
+                    }
+                </MudGrid>
+            </div>
+        }
+        else
+        {
+            <MudText>No cards found</MudText>
+        }
+    </MudCardContent>
+</MudCard>
 
-<MudCarousel ItemsSource="_cards" ShowArrows="true" ShowBullets="false" SelectedIndex="_selectedIndex" SelectedIndexChanged="@SelectedIndexChangedAsync" AutoCycle="false">
-    <ItemTemplate>
-        <div class="d-flex flex-column flex-column justify-center" style="height:100%">
-            <MudImage Height="500"  Src="@GetCardImageUrl(context)"></MudImage>
-        </div>
-    </ItemTemplate>
-</MudCarousel>
 
 
 
 @code
 {
-    private List<Card> _cards = [];
-    private IAsyncEnumerator<Card>? _currentSearchIterator;
+    private List<ScryfallCard> _cards = [];
+    private IAsyncEnumerator<ScryfallCard>? _currentSearchIterator;
     private int _selectedIndex;
+    private List<CardCollection> _collections = [];
 
+    private int CardContainerSize => Math.Max(3, 12 / _collections.Count);
+    
     private async Task NewSearchStringAsync(string? arg)
     {
         if (string.IsNullOrEmpty(arg))
@@ -81,23 +147,23 @@
         }
     }
 
-    private string? GetCardImageUrl(Card card)
+    private string? GetCardImageUrl(ScryfallCard scryfallCard)
     {
-        if (card is not {ImageUris.Count:> 0})
+        if (scryfallCard is not {ImageUris.Count:> 0})
         {
             return null;
         }
 
-        if (card.ImageUris.TryGetValue("border_crop", out var normal))
+        if (scryfallCard.ImageUris.TryGetValue("border_crop", out var normal))
         {
             return normal.ToString();
         }
-        if (card.ImageUris.TryGetValue("normal", out var small))
+        if (scryfallCard.ImageUris.TryGetValue("normal", out var small))
         {
             return small.ToString();
         }
 
-        return card.ImageUris.FirstOrDefault().Value?.ToString();
+        return scryfallCard.ImageUris.FirstOrDefault().Value?.ToString();
     }
 }
 

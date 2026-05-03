@@ -1,4 +1,4 @@
-using SetExplorer.Scryfall;
+using SetExplorer.Client.Core.Scryfall;
 
 namespace SetExplorer.Client.Core;
 

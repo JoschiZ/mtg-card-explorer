@@ -1,6 +1,6 @@
 using System.Net.Http.Headers;
 
-namespace SetExplorer.Scryfall;
+namespace SetExplorer.Client.Core.Scryfall;
 
 public static class ScryfallExtensions
 {

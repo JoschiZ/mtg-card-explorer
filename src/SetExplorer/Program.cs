@@ -2,11 +2,11 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
+using SetExplorer.Client.Core.Scryfall;
 using SetExplorer.Client.Pages;
 using SetExplorer.Components;
 using SetExplorer.Components.Account;
 using SetExplorer.Data;
-using SetExplorer.Scryfall;
 
 var builder = WebApplication.CreateBuilder(args);
 

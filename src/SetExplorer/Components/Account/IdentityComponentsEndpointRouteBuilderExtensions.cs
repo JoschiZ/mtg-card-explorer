@@ -11,7 +11,7 @@ using SetExplorer.Components.Account.Pages;
 using SetExplorer.Components.Account.Pages.Manage;
 using SetExplorer.Data;
 
-namespace Microsoft.AspNetCore.Routing;
+namespace SetExplorer.Components.Account;
 
 internal static class IdentityComponentsEndpointRouteBuilderExtensions
 {

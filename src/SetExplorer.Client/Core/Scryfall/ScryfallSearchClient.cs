@@ -1,8 +1,8 @@
 using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.WebUtilities;
-using SetExplorer.Scryfall.Models;
+using SetExplorer.Client.Core.Scryfall.Models;
 
-namespace SetExplorer.Scryfall;
+namespace SetExplorer.Client.Core.Scryfall;
 
 public class ScryfallSearchClient : ScryfallBaseClient
 {
@@ -11,7 +11,7 @@ public class ScryfallSearchClient : ScryfallBaseClient
     }
 
 
-    public async IAsyncEnumerable<Card> GetAllAsync(string query, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<ScryfallCard> GetAllAsync(string query, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var response = await SearchAsync(query, null, cancellationToken);
 
@@ -22,7 +22,7 @@ public class ScryfallSearchClient : ScryfallBaseClient
 
         while (response is { HasMore: true, NextPage: not null })
         {
-            response =  await GetFromJsonAsync<ResultList<Card>>(response.NextPage.AbsolutePath, cancellationToken);
+            response =  await GetFromJsonAsync<ResultList<ScryfallCard>>(response.NextPage.AbsolutePath, cancellationToken);
 
             foreach (var card in response.Data)
             {
@@ -31,7 +31,7 @@ public class ScryfallSearchClient : ScryfallBaseClient
         }
     }
 
-    public Task<ResultList<Card>> SearchAsync(string query, int? page, CancellationToken cancellationToken = default)
+    public Task<ResultList<ScryfallCard>> SearchAsync(string query, int? page, CancellationToken cancellationToken = default)
     {
         const string path = "/cards/search";
 
@@ -45,7 +45,7 @@ public class ScryfallSearchClient : ScryfallBaseClient
 
         var uri = QueryHelpers.AddQueryString(path, queryParams);
         
-        var result = GetFromJsonAsync<ResultList<Card>>(uri, cancellationToken);
+        var result = GetFromJsonAsync<ResultList<ScryfallCard>>(uri, cancellationToken);
         return result;
     }
     

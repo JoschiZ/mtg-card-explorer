@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;
-using SetExplorer.Scryfall;
+using SetExplorer.Client.Core.Scryfall;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 

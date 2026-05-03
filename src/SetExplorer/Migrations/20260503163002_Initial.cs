@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SetExplorer.Migrations
 {
     /// <inheritdoc />
-    public partial class CreateIdentitySchema : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,7 +15,7 @@ namespace SetExplorer.Migrations
                 name: "AspNetRoles",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "TEXT", nullable: false),
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     Name = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     NormalizedName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     ConcurrencyStamp = table.Column<string>(type: "TEXT", nullable: true)
@@ -29,7 +29,7 @@ namespace SetExplorer.Migrations
                 name: "AspNetUsers",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "TEXT", nullable: false),
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     UserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
@@ -51,12 +51,23 @@ namespace SetExplorer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Card",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Card", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    RoleId = table.Column<string>(type: "TEXT", nullable: false),
+                    RoleId = table.Column<Guid>(type: "TEXT", nullable: false),
                     ClaimType = table.Column<string>(type: "TEXT", nullable: true),
                     ClaimValue = table.Column<string>(type: "TEXT", nullable: true)
                 },
@@ -77,7 +88,7 @@ namespace SetExplorer.Migrations
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    UserId = table.Column<string>(type: "TEXT", nullable: false),
+                    UserId = table.Column<Guid>(type: "TEXT", nullable: false),
                     ClaimType = table.Column<string>(type: "TEXT", nullable: true),
                     ClaimValue = table.Column<string>(type: "TEXT", nullable: true)
                 },
@@ -99,7 +110,7 @@ namespace SetExplorer.Migrations
                     LoginProvider = table.Column<string>(type: "TEXT", maxLength: 128, nullable: false),
                     ProviderKey = table.Column<string>(type: "TEXT", maxLength: 128, nullable: false),
                     ProviderDisplayName = table.Column<string>(type: "TEXT", nullable: true),
-                    UserId = table.Column<string>(type: "TEXT", nullable: false)
+                    UserId = table.Column<Guid>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -117,7 +128,7 @@ namespace SetExplorer.Migrations
                 columns: table => new
                 {
                     CredentialId = table.Column<byte[]>(type: "BLOB", maxLength: 1024, nullable: false),
-                    UserId = table.Column<string>(type: "TEXT", nullable: false),
+                    UserId = table.Column<Guid>(type: "TEXT", nullable: false),
                     Data = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
@@ -135,8 +146,8 @@ namespace SetExplorer.Migrations
                 name: "AspNetUserRoles",
                 columns: table => new
                 {
-                    UserId = table.Column<string>(type: "TEXT", nullable: false),
-                    RoleId = table.Column<string>(type: "TEXT", nullable: false)
+                    UserId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    RoleId = table.Column<Guid>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -159,7 +170,7 @@ namespace SetExplorer.Migrations
                 name: "AspNetUserTokens",
                 columns: table => new
                 {
-                    UserId = table.Column<string>(type: "TEXT", nullable: false),
+                    UserId = table.Column<Guid>(type: "TEXT", nullable: false),
                     LoginProvider = table.Column<string>(type: "TEXT", maxLength: 128, nullable: false),
                     Name = table.Column<string>(type: "TEXT", maxLength: 128, nullable: false),
                     Value = table.Column<string>(type: "TEXT", nullable: true)
@@ -171,6 +182,117 @@ namespace SetExplorer.Migrations
                         name: "FK_AspNetUserTokens_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CardCollection",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", nullable: false),
+                    UserId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    ApplicationUserId = table.Column<Guid>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CardCollection", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CardCollection_AspNetUsers_ApplicationUserId",
+                        column: x => x.ApplicationUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Exploration",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", nullable: false),
+                    SearchString = table.Column<string>(type: "TEXT", nullable: false),
+                    UserId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    ApplicationUserId = table.Column<Guid>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Exploration", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Exploration_AspNetUsers_ApplicationUserId",
+                        column: x => x.ApplicationUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CardCardCollection",
+                columns: table => new
+                {
+                    CardsId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CollectionsId = table.Column<Guid>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CardCardCollection", x => new { x.CardsId, x.CollectionsId });
+                    table.ForeignKey(
+                        name: "FK_CardCardCollection_CardCollection_CollectionsId",
+                        column: x => x.CollectionsId,
+                        principalTable: "CardCollection",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CardCardCollection_Card_CardsId",
+                        column: x => x.CardsId,
+                        principalTable: "Card",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CardCollectionExploration",
+                columns: table => new
+                {
+                    CardCollectionsId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    ExplorationsId = table.Column<Guid>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CardCollectionExploration", x => new { x.CardCollectionsId, x.ExplorationsId });
+                    table.ForeignKey(
+                        name: "FK_CardCollectionExploration_CardCollection_CardCollectionsId",
+                        column: x => x.CardCollectionsId,
+                        principalTable: "CardCollection",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CardCollectionExploration_Exploration_ExplorationsId",
+                        column: x => x.ExplorationsId,
+                        principalTable: "Exploration",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CardExploration",
+                columns: table => new
+                {
+                    ExplorationsId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    SeenCardsId = table.Column<Guid>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CardExploration", x => new { x.ExplorationsId, x.SeenCardsId });
+                    table.ForeignKey(
+                        name: "FK_CardExploration_Card_SeenCardsId",
+                        column: x => x.SeenCardsId,
+                        principalTable: "Card",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CardExploration_Exploration_ExplorationsId",
+                        column: x => x.ExplorationsId,
+                        principalTable: "Exploration",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -216,6 +338,31 @@ namespace SetExplorer.Migrations
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CardCardCollection_CollectionsId",
+                table: "CardCardCollection",
+                column: "CollectionsId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CardCollection_ApplicationUserId",
+                table: "CardCollection",
+                column: "ApplicationUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CardCollectionExploration_ExplorationsId",
+                table: "CardCollectionExploration",
+                column: "ExplorationsId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CardExploration_SeenCardsId",
+                table: "CardExploration",
+                column: "SeenCardsId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Exploration_ApplicationUserId",
+                table: "Exploration",
+                column: "ApplicationUserId");
         }
 
         /// <inheritdoc />
@@ -240,7 +387,25 @@ namespace SetExplorer.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "CardCardCollection");
+
+            migrationBuilder.DropTable(
+                name: "CardCollectionExploration");
+
+            migrationBuilder.DropTable(
+                name: "CardExploration");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "CardCollection");
+
+            migrationBuilder.DropTable(
+                name: "Card");
+
+            migrationBuilder.DropTable(
+                name: "Exploration");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

@@ -1,13 +1,14 @@
 using System.Text.Json.Serialization;
+using SetExplorer.Client.Core.Cards;
 
-namespace SetExplorer.Scryfall.Models;
+namespace SetExplorer.Client.Core.Scryfall.Models;
 
 
 /// <summary>
 /// Card objects represent individual Magic: The Gathering cards that players could obtain and
 /// add to their collection (with a few minor exceptions).
 /// </summary>
-public sealed class Card : BaseItem
+public sealed class ScryfallCard : BaseItem
 {
 
     /// <summary>
@@ -125,7 +126,7 @@ public sealed class Card : BaseItem
     /// A unique ID for this card in Scryfall’s database.
     /// </summary>
     [JsonPropertyName("id")]
-    public Guid Id { get; set; }
+    public ScryfallCardId Id { get; set; }
 
     [JsonPropertyName("illustration_id")]
     public Guid? IllustrationId { get; set; }
@@ -347,7 +348,7 @@ public sealed class Card : BaseItem
     /// The type line of this card.
     /// </summary>
     [JsonPropertyName("type_line")]
-    public required string TypeLine { get; set; }
+    public string? TypeLine { get; set; }
 
     /// <summary>
     /// A link to this card object on Scryfall’s API.
