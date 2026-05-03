@@ -29,7 +29,6 @@
 
   <ItemGroup>
     <Folder Include="Data\Cards\" />
-    <Folder Include="Data\Migrations\" />
   </ItemGroup>
 
 </Project>

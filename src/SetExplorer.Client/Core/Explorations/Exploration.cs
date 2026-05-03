@@ -1,6 +1,5 @@
 using SetExplorer.Client.Core.Cards;
 using SetExplorer.Client.Core.Collections;
-using SetExplorer.Client.Core.Scryfall.Models;
 using Vogen;
 
 namespace SetExplorer.Client.Core.Explorations;
@@ -11,7 +10,7 @@ public class Exploration
     public required string Name { get; set; }
     public required string SearchString  { get; set; }
 
-    public List<ScryfallCard> SeenCards { get; set; } = [];
+    public List<Card> SeenCards { get; set; } = [];
     public List<CardCollection>  CardCollections { get; set; } = [];
     public required UserId UserId { get; init; }
 }
