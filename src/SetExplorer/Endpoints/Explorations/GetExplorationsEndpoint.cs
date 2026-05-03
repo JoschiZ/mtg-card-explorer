@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SetExplorer.Client.Core.Explorations;
 using SetExplorer.Data;
+using SetExplorer.Data.Explorations;
 
 namespace SetExplorer.Endpoints.Explorations;
 

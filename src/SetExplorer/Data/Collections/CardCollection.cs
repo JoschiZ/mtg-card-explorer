@@ -1,9 +1,9 @@
-using SetExplorer.Client.Core.Cards;
-using SetExplorer.Client.Core.Explorations;
-using SetExplorer.Client.Core.Scryfall.Models;
-using Vogen;
+using SetExplorer.Client.Core;
+using SetExplorer.Client.Core.Collections;
+using SetExplorer.Data.Cards;
+using SetExplorer.Data.Explorations;
 
-namespace SetExplorer.Client.Core.Collections;
+namespace SetExplorer.Data.Collections;
 
 public class CardCollection
 {
@@ -14,7 +14,4 @@ public class CardCollection
     public List<Exploration> Explorations { get; init; } = [];
     public required UserId UserId { get; init; }
 }
-
-[ValueObject<Guid>]
-public readonly partial struct CollectionId;
 

@@ -11,7 +11,6 @@ public class ExplorationConfiguration : IEntityTypeConfiguration<Exploration>
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Name).HasMaxLength(50).IsRequired();
         builder.Property(x => x.SearchString).HasMaxLength(100).IsRequired();
-
         builder.HasMany(x => x.SeenCards).WithMany(x => x.Explorations);
     }
 }

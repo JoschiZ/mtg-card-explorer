@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SetExplorer.Client.Core.Collections;
 using SetExplorer.Data;
+using SetExplorer.Data.Collections;
 
 namespace SetExplorer.Endpoints.Collections;
 

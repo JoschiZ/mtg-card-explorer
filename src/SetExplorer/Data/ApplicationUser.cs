@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.ValueGeneration;
 using SetExplorer.Client.Core;
 using SetExplorer.Client.Core.Collections;
 using SetExplorer.Client.Core.Explorations;
+using SetExplorer.Data.Collections;
+using SetExplorer.Data.Explorations;
 
 namespace SetExplorer.Data;
 

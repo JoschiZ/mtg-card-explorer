@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using SetExplorer.Client.Core.Cards;
 using SetExplorer.Client.Core.Explorations;
 using SetExplorer.Data;
+using SetExplorer.Data.Cards;
 
 namespace SetExplorer.Endpoints.Explorations;
 

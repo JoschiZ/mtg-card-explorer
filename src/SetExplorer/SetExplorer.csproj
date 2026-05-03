@@ -26,9 +26,4 @@
     <PackageReference Include="Extensions.MudBlazor.StaticInput" Version="4.1.0" />
   </ItemGroup>
 
-
-  <ItemGroup>
-    <Folder Include="Data\Cards\" />
-  </ItemGroup>
-
 </Project>

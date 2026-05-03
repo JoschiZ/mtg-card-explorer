@@ -1,8 +1,9 @@
-using SetExplorer.Client.Core.Cards;
-using SetExplorer.Client.Core.Collections;
-using Vogen;
+using SetExplorer.Client.Core;
+using SetExplorer.Client.Core.Explorations;
+using SetExplorer.Data.Cards;
+using SetExplorer.Data.Collections;
 
-namespace SetExplorer.Client.Core.Explorations;
+namespace SetExplorer.Data.Explorations;
 
 public class Exploration
 {
@@ -14,6 +15,3 @@ public class Exploration
     public List<CardCollection>  CardCollections { get; set; } = [];
     public required UserId UserId { get; init; }
 }
-
-[ValueObject<Guid>]
-public readonly partial struct ExplorationId;

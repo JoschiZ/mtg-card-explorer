@@ -1,8 +1,8 @@
-using System.Collections.ObjectModel;
-using SetExplorer.Client.Core.Collections;
-using SetExplorer.Client.Core.Explorations;
+using SetExplorer.Client.Core.Cards;
+using SetExplorer.Data.Collections;
+using SetExplorer.Data.Explorations;
 
-namespace SetExplorer.Client.Core.Cards;
+namespace SetExplorer.Data.Cards;
 
 public class Card
 {
