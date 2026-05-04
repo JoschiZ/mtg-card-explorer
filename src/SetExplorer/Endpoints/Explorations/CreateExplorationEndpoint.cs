@@ -31,13 +31,13 @@ public class CreateExplorationEndpoint(ApplicationDbContext db) : FastEndpoints.
         var userEntity = await db.Users.Include(u => u.Explorations).FirstOrDefaultAsync(u => u.Id == userId, ct);
         if (userEntity == null)
         {
-            await SendAsync(null, 401, ct);
+            await Send.ResponseAsync(null, 401, ct);
             return;
         }
         
         userEntity.Explorations.Add(exploration);
         await db.SaveChangesAsync(ct);
 
-        await SendCreatedAtAsync<CreateExplorationEndpoint>(new { exploration.Id }, exploration, cancellation: ct);
+        await Send.CreatedAtAsync<CreateExplorationEndpoint>(new { exploration.Id }, exploration, cancellation: ct);
     }
 }

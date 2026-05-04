@@ -10,17 +10,25 @@ namespace SetExplorer.Endpoints;
 
 public static class EndpointExtensions
 {
-    extension<TRequest, TResponse>(Endpoint<TRequest, TResponse> endpoint) where TRequest : notnull
+    public static UserId GetUserId<TRequest, TResponse>(this Endpoint<TRequest, TResponse> endpoint) where TRequest : notnull
     {
-        public UserId GetUserId()
+        var idClaim = endpoint.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (idClaim == null || !UserId.TryParse(idClaim, out var userId))
         {
-            var idClaim = endpoint.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (idClaim == null || !UserId.TryParse(idClaim, out var userId))
-            {
-                throw new UnauthorizedAccessException();
-            }
-
-            return userId;
+            throw new UnauthorizedAccessException();
         }
+
+        return userId;
+    }
+
+    public static UserId GetUserId<TRequest>(this Endpoint<TRequest> endpoint) where TRequest : notnull
+    {
+        var idClaim = endpoint.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (idClaim == null || !UserId.TryParse(idClaim, out var userId))
+        {
+            throw new UnauthorizedAccessException();
+        }
+
+        return userId;
     }
 }

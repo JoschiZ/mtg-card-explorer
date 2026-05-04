@@ -32,7 +32,7 @@ public class RemoveCollectionFromExplorationEndpoint(ApplicationDbContext db) : 
 
         if (exploration == null)
         {
-            await SendNotFoundAsync(ct);
+            await Send.NotFoundAsync(ct);
             return;
         }
 
@@ -42,7 +42,5 @@ public class RemoveCollectionFromExplorationEndpoint(ApplicationDbContext db) : 
             exploration.CardCollections.Remove(collection);
             await db.SaveChangesAsync(ct);
         }
-
-        await SendOkAsync(ct);
     }
 }

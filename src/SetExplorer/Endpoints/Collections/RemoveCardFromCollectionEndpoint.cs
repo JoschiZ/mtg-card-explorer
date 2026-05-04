@@ -32,7 +32,7 @@ public class RemoveCardFromCollectionEndpoint(ApplicationDbContext db) : FastEnd
 
         if (collection == null)
         {
-            await SendNotFoundAsync(ct);
+            await Send.NotFoundAsync(ct);
             return;
         }
 
@@ -42,7 +42,5 @@ public class RemoveCardFromCollectionEndpoint(ApplicationDbContext db) : FastEnd
             collection.Cards.Remove(card);
             await db.SaveChangesAsync(ct);
         }
-
-        await SendOkAsync(ct);
     }
 }

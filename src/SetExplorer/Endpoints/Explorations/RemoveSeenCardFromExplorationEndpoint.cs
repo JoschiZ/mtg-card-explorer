@@ -32,7 +32,7 @@ public class RemoveSeenCardFromExplorationEndpoint(ApplicationDbContext db) : Fa
 
         if (exploration == null)
         {
-            await SendNotFoundAsync(ct);
+            await Send.NotFoundAsync(ct);
             return;
         }
 
@@ -42,7 +42,5 @@ public class RemoveSeenCardFromExplorationEndpoint(ApplicationDbContext db) : Fa
             exploration.SeenCards.Remove(card);
             await db.SaveChangesAsync(ct);
         }
-
-        await SendOkAsync(ct);
     }
 }

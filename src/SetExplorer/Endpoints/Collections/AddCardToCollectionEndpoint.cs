@@ -9,8 +9,8 @@ namespace SetExplorer.Endpoints.Collections;
 
 public record AddCardToCollectionRequest
 {
-    public Guid CollectionId { get; init; }
-    public Guid CardId { get; init; }
+    public required Guid CollectionId { get; init; }
+    public required Guid CardId { get; init; }
 }
 
 public class AddCardToCollectionEndpoint(ApplicationDbContext db) : FastEndpoints.Endpoint<AddCardToCollectionRequest>
@@ -34,7 +34,7 @@ public class AddCardToCollectionEndpoint(ApplicationDbContext db) : FastEndpoint
 
         if (collection == null)
         {
-            await SendNotFoundAsync(ct);
+            await Send.NotFoundAsync(ct);
             return;
         }
 
@@ -49,7 +49,5 @@ public class AddCardToCollectionEndpoint(ApplicationDbContext db) : FastEndpoint
             collection.Cards.Add(card);
             await db.SaveChangesAsync(ct);
         }
-
-        await SendOkAsync(ct);
     }
 }

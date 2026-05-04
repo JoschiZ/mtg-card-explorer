@@ -30,6 +30,6 @@ public class GetExplorationsEndpoint(ApplicationDbContext db) : FastEndpoints.En
         }
 
         var explorations = await query.ToListAsync(ct);
-        await SendOkAsync(explorations, ct);
+        await Send.OkAsync(explorations, ct);
     }
 }

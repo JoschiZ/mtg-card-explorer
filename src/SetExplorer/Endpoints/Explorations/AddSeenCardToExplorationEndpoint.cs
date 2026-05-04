@@ -33,7 +33,7 @@ public class AddSeenCardToExplorationEndpoint(ApplicationDbContext db) : FastEnd
 
         if (exploration == null)
         {
-            await SendNotFoundAsync(ct);
+            await Send.NotFoundAsync(ct);
             return;
         }
 
@@ -48,7 +48,5 @@ public class AddSeenCardToExplorationEndpoint(ApplicationDbContext db) : FastEnd
             exploration.SeenCards.Add(card);
             await db.SaveChangesAsync(ct);
         }
-
-        await SendOkAsync(ct);
     }
 }

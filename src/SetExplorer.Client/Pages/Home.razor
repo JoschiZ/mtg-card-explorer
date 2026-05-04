@@ -43,31 +43,7 @@
             </div>
             <div style="flex: 1; min-height: 0; overflow-y: auto; margin-top: 16px;">
                 <MudGrid>
-                    @foreach (var container in _collections)
-                    {
-                        <MudItem xs="CardContainerSize">
-                            <MudCard>
-                                <MudCardHeader>
-                                    <MudText>@container.Name</MudText>
-                                </MudCardHeader>
-                                <MudCardActions>
-                                    <MudButton Size="Size.Small" FullWidth EndIcon="@Icons.Material.Outlined.AddCircle" Variant="Variant.Outlined" Color="Color.Success">Add</MudButton>
-                                </MudCardActions>
-                                <MudCardContent>
-                                    @foreach (var card in container.Cards)
-                                    {
-                                        <MudPaper Outlined>
-                                            <MudStack Row>
-                                               <MudSpacer></MudSpacer>
-                                               <MudDivider DividerType="DividerType.Middle" Vertical></MudDivider>
-                                               <MudIconButton Icon="@Icons.Material.Outlined.RemoveCircle"></MudIconButton>
-                                            </MudStack>
-                                        </MudPaper>
-                                    }
-                                </MudCardContent>
-                            </MudCard>
-                        </MudItem>
-                    }
+                    
                 </MudGrid>
             </div>
         }
@@ -86,7 +62,7 @@
     private List<ScryfallCard> _cards = [];
     private IAsyncEnumerator<ScryfallCard>? _currentSearchIterator;
     private int _selectedIndex;
-    private List<CardCollection> _collections = [];
+    private List<object> _collections = [];
 
     private int CardContainerSize => Math.Max(3, 12 / _collections.Count);
     

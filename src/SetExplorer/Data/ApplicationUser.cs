@@ -4,8 +4,6 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using SetExplorer.Client.Core;
-using SetExplorer.Client.Core.Collections;
-using SetExplorer.Client.Core.Explorations;
 using SetExplorer.Data.Collections;
 using SetExplorer.Data.Explorations;
 

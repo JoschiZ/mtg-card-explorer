@@ -30,13 +30,13 @@ public class CreateCollectionEndpoint(ApplicationDbContext db) : FastEndpoints.E
         var userEntity = await db.Users.Include(u => u.CardCollections).FirstOrDefaultAsync(u => u.Id == userId, ct);
         if (userEntity == null)
         {
-            await SendAsync(null, 401, ct);
+            await Send.ResponseAsync(null, 401, ct);
             return;
         }
         
         userEntity.CardCollections.Add(collection);
         await db.SaveChangesAsync(ct);
 
-        await SendCreatedAtAsync<CreateCollectionEndpoint>(new { collection.Id }, collection, cancellation: ct);
+        await Send.CreatedAtAsync<CreateCollectionEndpoint>(new { collection.Id }, collection, cancellation: ct);
     }
 }

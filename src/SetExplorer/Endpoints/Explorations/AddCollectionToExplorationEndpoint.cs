@@ -32,7 +32,7 @@ public class AddCollectionToExplorationEndpoint(ApplicationDbContext db) : FastE
 
         if (exploration == null)
         {
-            await SendNotFoundAsync(ct);
+            await Send.NotFoundAsync(ct);
             return;
         }
 
@@ -43,7 +43,7 @@ public class AddCollectionToExplorationEndpoint(ApplicationDbContext db) : FastE
 
         if (collection == null)
         {
-            await SendNotFoundAsync(ct);
+            await Send.NotFoundAsync(ct);
             return;
         }
 
@@ -52,7 +52,5 @@ public class AddCollectionToExplorationEndpoint(ApplicationDbContext db) : FastE
             exploration.CardCollections.Add(collection);
             await db.SaveChangesAsync(ct);
         }
-
-        await SendOkAsync(ct);
     }
 }

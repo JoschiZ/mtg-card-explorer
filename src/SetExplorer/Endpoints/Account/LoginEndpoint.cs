@@ -34,23 +34,23 @@ public class LoginEndpoint(SignInManager<ApplicationUser> signInManager, ILogger
         if (result.Succeeded)
         {
             logger.LogInformation("User {Email} logged in via API.", req.Email);
-            await SendOkAsync(new LoginResponse { Status = "Success" }, ct);
+            await Send.OkAsync(new LoginResponse { Status = "Success" }, ct);
             return;
         }
 
         if (result.RequiresTwoFactor)
         {
-            await SendAsync(new LoginResponse { Status = "RequiresTwoFactor" }, 202, ct);
+            await Send.ResponseAsync(new LoginResponse { Status = "RequiresTwoFactor" }, 202, ct);
             return;
         }
 
         if (result.IsLockedOut)
         {
             logger.LogWarning("User account {Email} locked out.", req.Email);
-            await SendAsync(new LoginResponse { Status = "LockedOut" }, 403, ct);
+            await Send.ResponseAsync(new LoginResponse { Status = "LockedOut" }, 403, ct);
             return;
         }
 
-        await SendAsync(new LoginResponse { Status = "Failure", Message = "Invalid login attempt." }, 401, ct);
+        await Send.ResponseAsync(new LoginResponse { Status = "Failure", Message = "Invalid login attempt." }, 401, ct);
     }
 }

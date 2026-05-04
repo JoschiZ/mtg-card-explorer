@@ -30,6 +30,6 @@ public class GetCollectionsEndpoint(ApplicationDbContext db) : FastEndpoints.End
         }
 
         var collections = await query.ToListAsync(ct);
-        await SendOkAsync(collections, ct);
+        await Send.OkAsync(collections, ct);
     }
 }
