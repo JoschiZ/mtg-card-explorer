@@ -1,4 +1,5 @@
-﻿@inherits LayoutComponentBase
+﻿@using SetExplorer.Client.Pages.Shared
+@inherits LayoutComponentBase
 
 <MudThemeProvider IsDarkMode />
 <MudPopoverProvider />
@@ -6,9 +7,23 @@
 <MudSnackbarProvider />
 <MudLayout>
     <MudAppBar Elevation="1">
-        <MudText Typo="Typo.h5" Class="ml-3">Application</MudText>
-        <MudSpacer />
-        <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
+        <a href="/">
+            <MudText Typo="Typo.h5" Class="ml-3">Application</MudText>
+        </a>
+        <MudSpacer/>
+        <AuthorizeView>
+            <Authorized Context="authContext">
+                <a href="/Account/Manage">
+                    <MudAvatar>
+                        @authContext.User.Identity?.Name?[..2]
+                    </MudAvatar>
+                </a>
+                <LogoutButton></LogoutButton>
+            </Authorized>
+            <NotAuthorized>
+                <MudIconButton Icon="@Icons.Material.Filled.Login" Href="Account/Login"></MudIconButton>
+            </NotAuthorized>
+        </AuthorizeView>
     </MudAppBar>
     <MudMainContent Class="pt-16 pa-4" Style="min-height: 100vh">
         <MudContainer>

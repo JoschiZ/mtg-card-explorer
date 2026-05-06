@@ -4,6 +4,7 @@ using SetExplorer.Client.Core.Scryfall;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
+
 builder.Services.AddMudServices();
 
 builder.Services.AddAuthorizationCore();

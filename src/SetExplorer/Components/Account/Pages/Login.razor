@@ -23,8 +23,8 @@
 
             <MudGrid>
                 <MudItem md="12">
-                    <MudStaticTextField For="@(() => Input.Email)" @bind-Value="Input.Email"
-                        Label="Email" Placeholder="name@example.com"
+                    <MudStaticTextField For="@(() => Input.UserName)" @bind-Value="Input.UserName"
+                        Label="Username" Placeholder="Richard Garfield"
                         UserAttributes="@(new() { { "autocomplete", "username webauthn" }, { "aria-required", "true" } } )" />
                 </MudItem>
                 <MudItem md="12">
@@ -111,7 +111,7 @@
 
             // This doesn't count login failures towards account lockout
             // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-            result = await SignInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+            result = await SignInManager.PasswordSignInAsync(Input.UserName, Input.Password, Input.RememberMe, lockoutOnFailure: false);
         }
 
         if (result.Succeeded)
@@ -139,8 +139,7 @@
     private sealed class InputModel
     {
         [Required]
-        [EmailAddress]
-        public string Email { get; set; } = "";
+        public string UserName { get; set; } = "";
 
         [Required]
         [DataType(DataType.Password)]
