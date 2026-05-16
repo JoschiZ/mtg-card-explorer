@@ -28,7 +28,7 @@ public class ResultList<T> : BaseItem where T : BaseItem
     /// An array of the requested objects, in a specific order.
     /// </summary>
     [JsonPropertyName("data")]
-    public required ICollection<T> Data { get; set; }
+    public ICollection<T> Data { get; set; } = [];
     
     [JsonPropertyName("warnings")]
     public string[]? Warnings { get; set; }

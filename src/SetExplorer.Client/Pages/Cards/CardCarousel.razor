@@ -1,0 +1,105 @@
+@using SetExplorer.Client.Core.Scryfall
+@using SetExplorer.Client.Core.Scryfall.Models
+@inject ScryfallSearchClient SearchClient
+@inject ILogger<Home> Logger
+<MudCarousel Style="height: 100%" ItemsSource="_cards" ShowArrows="true" ShowBullets="false" SelectedIndex="_selectedIndex" SelectedIndexChanged="@SelectedIndexChangedAsync" AutoCycle="false">
+    <ItemTemplate>
+        <MudGrid Style="height: 100%; margin: 0; width: 90%" Justify="Justify.Center">
+            <MudItem xs="4" Style="height: 100%; margin: 0">
+                <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Style="height: 100%">
+                    <CardImage Card="context"></CardImage>
+                </MudStack>
+            </MudItem>
+            <MudItem xs="8" Style="height: 100%; margin: 0">
+                <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center" Style="height: 100%">
+                    <MudCard Elevation="0" Style="max-height: 100%; overflow-y: auto;">
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.h6">@context.Name</MudText>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            <MudText Typo="Typo.body1">@context.OracleText</MudText>
+                        </MudCardContent>
+                    </MudCard>    
+                </MudStack>
+            </MudItem>
+        </MudGrid>
+    </ItemTemplate>
+</MudCarousel>
+
+@code {
+    
+    
+    private List<ScryfallCard> _cards = [];
+    private IAsyncEnumerator<ScryfallCard>? _currentSearchIterator;
+    private int _selectedIndex;
+    
+    [Parameter]
+    public ScryfallCard? SelectedCard { get; set; } 
+    [Parameter]
+    public EventCallback<ScryfallCard?> SelectedCardChanged { get; set; }
+    
+    
+    [Parameter, EditorRequired]
+    public required string SearchString { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (string.IsNullOrEmpty(SearchString))
+        {
+            return;
+        }
+        
+        _currentSearchIterator = SearchClient.GetAllAsync(SearchString).GetAsyncEnumerator();
+        _cards.Clear();
+        await LoadNextCardsAsync(20);
+    }
+
+    /// <summary>
+    /// This is the page size of scryfalls search endpoint.
+    /// Thus this is how much we can simpyl load without additional IO calls
+    /// </summary>
+    private const int ScryfallSearchPageSize = 175;
+    private async Task LoadNextCardsAsync(int entries = ScryfallSearchPageSize)
+    {
+        if (_currentSearchIterator is null)
+        {
+            return;
+        }
+
+        if (_currentlyLoadingNewCards)
+        {
+            return;
+        }
+        Logger.LogDebug("Loading next cards {amount} ...", entries);
+        _currentlyLoadingNewCards = true;
+        var itemsTaken = 0;
+        while (itemsTaken < entries && await _currentSearchIterator.MoveNextAsync())
+        {
+            _cards.Add(_currentSearchIterator.Current);
+            itemsTaken++;
+        }
+        _currentlyLoadingNewCards = false;
+    }
+
+    private bool _currentlyLoadingNewCards;
+    private async Task SelectedIndexChangedAsync(int newIndex)
+    {
+        if (newIndex == _cards.Count - 1)
+        {
+            await LoadNextCardsAsync();
+            return;
+        }
+        
+        _selectedIndex = newIndex;
+        SelectedCard = _cards[newIndex];
+        await SelectedCardChanged.InvokeAsync(SelectedCard);
+        
+        Logger.LogDebug("SelectedIndexChanged: {index}", newIndex);
+        if (_cards.Count - newIndex <= 5)
+        {
+            await LoadNextCardsAsync();
+        }
+    }
+}

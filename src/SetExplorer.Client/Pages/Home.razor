@@ -1,153 +1,28 @@
 ﻿@page "/"
-@using SetExplorer.Client.Core
-@using SetExplorer.Client.Core.Collections
-@using SetExplorer.Client.Core.Scryfall
-@using SetExplorer.Client.Core.Scryfall.Models
 @using SetExplorer.Client.Pages.Cards
-@using SetExplorer.Client.Pages.Collections
-@inject ScryfallSearchClient SearchClient
-@inject ILogger<Home> Logger
 
 <PageTitle>Home</PageTitle>
 
-<MudCard Style="height: calc(100vh - 100px); display: flex; flex-direction: column;">
-    <MudCardActions>
-        <MudTextField Variant="Variant.Filled" Placeholder="set:sld" Label="Scryfall Search" T="string" ValueChanged="@NewSearchStringAsync"></MudTextField>
-    </MudCardActions>
-    <MudCardContent Style="flex-grow: 1; display: flex; flex-direction: column; overflow: hidden;">
-        @if (_cards.Count != 0)
-        {
-            <div style="flex: 1; min-height: 0;">
-                <MudCarousel Style="height: 100%" ItemsSource="_cards" ShowArrows="true" ShowBullets="false" SelectedIndex="_selectedIndex" SelectedIndexChanged="@SelectedIndexChangedAsync" AutoCycle="false">
-                    <ItemTemplate>
-                        <MudGrid Style="height: 100%" Justify="Justify.Center">
-                            <MudItem xs="6" Style="height: 100%">
-                                <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Style="height: 100%">
-                                    <CardImage Card="context"></CardImage>
-                                </MudStack>
-                            </MudItem>
-                            <MudItem xs="6" Style="height: 100%">
-                                <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center" Style="height: 100%">
-                                    <MudCard Elevation="0" Style="max-height: 100%; overflow-y: auto;">
-                                        <MudCardHeader>
-                                            <CardHeaderContent>
-                                                <MudText Typo="Typo.h6">@context.Name</MudText>
-                                            </CardHeaderContent>
-                                        </MudCardHeader>
-                                        <MudCardContent>
-                                            <MudText Typo="Typo.body1">@context.OracleText</MudText>
-                                        </MudCardContent>
-                                    </MudCard>    
-                                </MudStack>
-                            </MudItem>
-                        </MudGrid>
-                    </ItemTemplate>
-                </MudCarousel>
-            </div>
-            <div style="flex: 1; min-height: 0; overflow-y: auto; margin-top: 16px;">
-                <MudButton OnClick="@AddCollection">AddCollection</MudButton>
-                <MudGrid>
-                    @foreach (var collection in _collections)
-                    {
-                        <MudItem xs="CardContainerSize">
-                            <MudButton FullWidth Variant="Variant.Outlined" OnClick="@(() => AddCardAsync(collection, _cards[_selectedIndex]))">Add</MudButton>
-                            <CardCollectionDisplay Collection="collection"></CardCollectionDisplay>
-                        </MudItem>
-                    }
-                </MudGrid>
-            </div>
-        }
-        else
-        {
-            <MudText>No cards found</MudText>
-        }
-    </MudCardContent>
-</MudCard>
+<MudPaper Outlined Class="main-component">
+        <MudTextField Variant="Variant.Filled" FullWidth HelperText="Scryfall Search" Placeholder="set:mid" @bind-Value="@_searchString"></MudTextField>
+</MudPaper>
 
+<MudPaper Outlined Style="height: 350px; display: flex; justify-content: center; align-content: center" Class="main-component">
+        <CardCarousel SearchString="@_searchString"></CardCarousel>
+</MudPaper>
 
+<MudPaper Outlined Class="main-component">
+    
+</MudPaper>
 
+<style>
+    .main-component{
+        margin-bottom: 5px;
+    }
+</style>
 
 @code
 {
-    private List<ScryfallCard> _cards = [];
-    private IAsyncEnumerator<ScryfallCard>? _currentSearchIterator;
-    private int _selectedIndex;
-    private List<CardCollectionDto> _collections = [];
-
-    private int CardContainerSize => Math.Max(3, 12 / _collections.Count);
-    
-    private async Task NewSearchStringAsync(string? arg)
-    {
-        if (string.IsNullOrEmpty(arg))
-        {
-            return;
-        }
-        
-        _currentSearchIterator = SearchClient.GetAllAsync(arg).GetAsyncEnumerator();
-        _cards.Clear();
-        await LoadNextCardsAsync(20);
-    }
-
-    /// <summary>
-    /// This is the page size of scryfalls search endpoint.
-    /// Thus this is how much we can simpyl load without additional IO calls
-    /// </summary>
-    private const int ScryfallSearchPageSize = 175;
-    private async Task LoadNextCardsAsync(int entries = ScryfallSearchPageSize)
-    {
-        if (_currentSearchIterator is null)
-        {
-            return;
-        }
-
-        if (_currentlyLoadingNewCards)
-        {
-            return;
-        }
-        Logger.LogDebug("Loading next cards {amount} ...", entries);
-        _currentlyLoadingNewCards = true;
-        var itemsTaken = 0;
-        while (itemsTaken < entries && await _currentSearchIterator.MoveNextAsync())
-        {
-            _cards.Add(_currentSearchIterator.Current);
-            itemsTaken++;
-        }
-        _currentlyLoadingNewCards = false;
-    }
-
-    private bool _currentlyLoadingNewCards;
-    private async Task SelectedIndexChangedAsync(int newIndex)
-    {
-        if (newIndex == _cards.Count - 1)
-        {
-            await LoadNextCardsAsync();
-            return;
-        }
-        
-        _selectedIndex = newIndex;
-        
-        Logger.LogDebug("SelectedIndexChanged: {index}", newIndex);
-        if (_cards.Count - newIndex <= 5)
-        {
-            await LoadNextCardsAsync();
-        }
-    }
-
-    private Task AddCardAsync(CardCollectionDto collection, ScryfallCard card)
-    {
-        collection.Cards.Add(card.Id);
-        return Task.CompletedTask;
-    }
-
-    private void AddCollection()
-    {
-        _collections.Add(new CardCollectionDto
-        {
-            Name = Guid.CreateVersion7().ToString(),
-            Id = CollectionId.FromNewVersion7Guid(),
-            Cards = [],
-            UserId = UserId.FromNewVersion7Guid()
-        });
-    }
+    private string _searchString = "";
 }
 
