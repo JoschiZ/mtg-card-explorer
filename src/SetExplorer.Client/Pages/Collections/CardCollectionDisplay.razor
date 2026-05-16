@@ -1,0 +1,34 @@
+@using SetExplorer.Client.Core.Cards
+@using SetExplorer.Client.Core.Collections
+@using SetExplorer.Client.Pages.Cards
+<MudPaper Outlined>
+    <MudStack AlignItems="AlignItems.Start" Justify="Justify.Center">
+        <MudText>@Collection.Name</MudText>
+        <MudDivider DividerType="DividerType.Middle"></MudDivider>
+        <div>
+            
+        @foreach (var card in Collection.Cards)
+        {
+            <MudStack Row AlignItems="AlignItems.Center" Style="width: 100%">
+                <CardNameDisplay CardId="card"></CardNameDisplay>
+                <MudSpacer></MudSpacer>
+                <MudIconButton Icon="@Icons.Material.Outlined.RemoveCircle" Color="Color.Warning" OnClick="@(() => RemoveCardAsync(card))"></MudIconButton>
+            </MudStack>
+        }
+        </div>
+    </MudStack>
+</MudPaper>
+
+@code {
+    [Parameter, EditorRequired]
+    public required CardCollectionDto Collection  { get; set; }
+
+    private Task RemoveCardAsync(ScryfallCardId card)
+    {
+        Collection.Cards.Remove(card);
+        // TODO: Persist to DB if logged in
+        // TODO: OnValue Changed
+        return Task.CompletedTask;
+    }
+
+}

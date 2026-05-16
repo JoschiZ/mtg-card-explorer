@@ -1,13 +1,12 @@
 using FastEndpoints;
-using FastEndpoints.Swagger;
+using FastEndpoints.OpenApi;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi;
 using MudBlazor.Services;
-using NSwag;
 using Scalar.AspNetCore;
 using SetExplorer.Client.Core.Scryfall;
-using SetExplorer.Client.Pages;
 using SetExplorer.Components;
 using SetExplorer.Components.Account;
 using SetExplorer.Data;
@@ -16,7 +15,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add MudBlazor services
 builder.Services.AddMudServices();
-
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
@@ -28,20 +26,21 @@ builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
 builder.Services.AddScryfallSearchClient();
 builder.Services.AddFastEndpoints();
-builder.Services.SwaggerDocument(o =>
+builder.Services.OpenApiDocument(o =>
 {
-    o.DocumentSettings = s =>
+    o.Title = "CardExplorer API";
+    o.Version = "v1";
+    o.AddAuth("Identity.Application", new OpenApiSecurityScheme()
     {
-        s.Title = "CardExplorer API";
-        s.Version = "v1";
-        s.AddAuth("Identity.Application", new()
-        {
-            Type = OpenApiSecuritySchemeType.ApiKey,
-            Name = ".AspNetCore.Identity.Application",
-            In = OpenApiSecurityApiKeyLocation.Cookie,
-            Description = "Enter your .AspNetCore.Identity.Application cookie",
-        });
-    };
+        
+        Type = SecuritySchemeType.ApiKey,
+        Name = ".AspNetCore.Identity.Application",
+        In = ParameterLocation.Cookie,
+        Description = "Enter your .AspNetCore.Identity.Application cookie",
+    });
+
+    o.AutoTagPathSegmentIndex = 1;
+    o.UseOneOfForPolymorphism = true;
 });
 builder.Services.AddOpenApi();
 builder.Services.AddAntiforgery();

@@ -3,13 +3,43 @@ using SetExplorer.Client.Core.Cards;
 
 namespace SetExplorer.Client.Core.Scryfall.Models;
 
-
 /// <summary>
 /// Card objects represent individual Magic: The Gathering cards that players could obtain and
 /// add to their collection (with a few minor exceptions).
 /// </summary>
 public sealed class ScryfallCard : BaseItem
 {
+    
+    
+    public string? GetCardImageUrl()
+    {
+        if (ImageUris.Count == 0)
+        {
+            return null;
+        }
+
+        if (ImageUris.TryGetValue("normal", out var normal))
+        {
+            return normal.ToString();
+        }
+        
+        if (ImageUris.TryGetValue("border_crop", out var border))
+        {
+            return border.ToString();
+        }
+
+        if (ImageUris.TryGetValue("large", out var large))
+        {
+            return large.ToString();
+        }
+        
+        if (ImageUris.TryGetValue("small", out var small))
+        {
+            return small.ToString();
+        }
+
+        return ImageUris.FirstOrDefault().Value?.ToString();
+    }
 
     /// <summary>
     /// This cards defense if any
@@ -134,8 +164,7 @@ public sealed class ScryfallCard : BaseItem
     [JsonPropertyName("image_status")]
     public string? ImageStatus { get; set; }
 
-    [JsonPropertyName("image_uris")]
-    public Dictionary<string, Uri>? ImageUris { get; set; }
+    [JsonPropertyName("image_uris")] public Dictionary<string, Uri> ImageUris { get; set; } = [];
 
     [JsonPropertyName("keywords")]
     public string[]? Keywords { get; set; }

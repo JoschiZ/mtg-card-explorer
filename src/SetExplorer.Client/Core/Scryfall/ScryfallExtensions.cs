@@ -7,6 +7,7 @@ public static class ScryfallExtensions
     public static IServiceCollection AddScryfallSearchClient(
         this IServiceCollection services)
     {
+        services.AddMemoryCache();
         services
             .AddHttpClient<ScryfallSearchClient>((provider, client) =>
             {

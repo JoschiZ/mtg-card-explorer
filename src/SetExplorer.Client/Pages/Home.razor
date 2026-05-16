@@ -1,7 +1,10 @@
 ﻿@page "/"
+@using SetExplorer.Client.Core
 @using SetExplorer.Client.Core.Collections
 @using SetExplorer.Client.Core.Scryfall
 @using SetExplorer.Client.Core.Scryfall.Models
+@using SetExplorer.Client.Pages.Cards
+@using SetExplorer.Client.Pages.Collections
 @inject ScryfallSearchClient SearchClient
 @inject ILogger<Home> Logger
 
@@ -20,7 +23,7 @@
                         <MudGrid Style="height: 100%" Justify="Justify.Center">
                             <MudItem xs="6" Style="height: 100%">
                                 <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Style="height: 100%">
-                                    <MudImage Style="max-height: 100%; max-width: 100%" ObjectFit="ObjectFit.Contain" Src="@GetCardImageUrl(context)"></MudImage>
+                                    <CardImage Card="context"></CardImage>
                                 </MudStack>
                             </MudItem>
                             <MudItem xs="6" Style="height: 100%">
@@ -42,8 +45,15 @@
                 </MudCarousel>
             </div>
             <div style="flex: 1; min-height: 0; overflow-y: auto; margin-top: 16px;">
+                <MudButton OnClick="@AddCollection">AddCollection</MudButton>
                 <MudGrid>
-                    
+                    @foreach (var collection in _collections)
+                    {
+                        <MudItem xs="CardContainerSize">
+                            <MudButton FullWidth Variant="Variant.Outlined" OnClick="@(() => AddCardAsync(collection, _cards[_selectedIndex]))">Add</MudButton>
+                            <CardCollectionDisplay Collection="collection"></CardCollectionDisplay>
+                        </MudItem>
+                    }
                 </MudGrid>
             </div>
         }
@@ -62,7 +72,7 @@
     private List<ScryfallCard> _cards = [];
     private IAsyncEnumerator<ScryfallCard>? _currentSearchIterator;
     private int _selectedIndex;
-    private List<object> _collections = [];
+    private List<CardCollectionDto> _collections = [];
 
     private int CardContainerSize => Math.Max(3, 12 / _collections.Count);
     
@@ -123,23 +133,21 @@
         }
     }
 
-    private string? GetCardImageUrl(ScryfallCard scryfallCard)
+    private Task AddCardAsync(CardCollectionDto collection, ScryfallCard card)
     {
-        if (scryfallCard is not {ImageUris.Count:> 0})
-        {
-            return null;
-        }
+        collection.Cards.Add(card.Id);
+        return Task.CompletedTask;
+    }
 
-        if (scryfallCard.ImageUris.TryGetValue("border_crop", out var normal))
+    private void AddCollection()
+    {
+        _collections.Add(new CardCollectionDto
         {
-            return normal.ToString();
-        }
-        if (scryfallCard.ImageUris.TryGetValue("normal", out var small))
-        {
-            return small.ToString();
-        }
-
-        return scryfallCard.ImageUris.FirstOrDefault().Value?.ToString();
+            Name = Guid.CreateVersion7().ToString(),
+            Id = CollectionId.FromNewVersion7Guid(),
+            Cards = [],
+            UserId = UserId.FromNewVersion7Guid()
+        });
     }
 }
 

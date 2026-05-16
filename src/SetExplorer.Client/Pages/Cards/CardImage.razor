@@ -1,0 +1,43 @@
+@using SetExplorer.Client.Core.Scryfall.Models
+
+<div class="basicCard_border basicCard_container">
+    <img 
+        class="basicCard_image"
+        src="@_imageUrl"
+        alt="@Card.Name"
+        title="@Card.Name"/>
+</div>
+
+<style>
+    .basicCard_container{
+        position: relative;
+        aspect-ratio: 5/7;
+        border-radius: 15px;
+        overflow: hidden;
+        max-height: 300px;
+    }
+
+    .basicCard_border {
+        border: 1px solid #525252;
+        background-color: #525252;
+    }
+    
+    .basicCard_image{
+        height: 100%;
+        width: 100%;
+        user-select: none;
+    }
+</style>
+
+@code {
+    [Parameter, EditorRequired]
+    public required ScryfallCard Card { get; set; }
+
+    private string? _imageUrl;
+
+    protected override void OnParametersSet()
+    {
+        _imageUrl = Card.GetCardImageUrl();
+    }
+
+}
