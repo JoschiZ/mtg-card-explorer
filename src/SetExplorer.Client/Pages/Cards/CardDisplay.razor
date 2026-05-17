@@ -1,0 +1,24 @@
+@using SetExplorer.Client.Core.Scryfall.Models
+
+<MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.Center" Style="height: 100%; width: 100%;" Spacing="4">
+    <div style="flex: 0 0 auto; display: flex; justify-content: center;">
+        <CardImage Card="Card"></CardImage>
+    </div>
+    <div style="flex: 1 1 auto; min-width: 0; max-height: 100%; overflow-y: auto;">
+        <MudCard Elevation="0" Style="background: transparent;">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6">@Card.Name</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudText Typo="Typo.body1">@Card.OracleText</MudText>
+            </MudCardContent>
+        </MudCard>
+    </div>
+</MudStack>
+
+@code {
+    [Parameter, EditorRequired]
+    public required ScryfallCard Card { get; set; }
+}

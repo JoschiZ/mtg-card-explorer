@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using MudBlazor.Services;
 using Scalar.AspNetCore;
+using SetExplorer.Client.Core;
 using SetExplorer.Client.Core.Scryfall;
 using SetExplorer.Components;
 using SetExplorer.Components.Account;
@@ -24,7 +25,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
-builder.Services.AddScryfallSearchClient();
+builder.Services.AddSharedConfiguration();
 builder.Services.AddFastEndpoints();
 builder.Services.OpenApiDocument(o =>
 {

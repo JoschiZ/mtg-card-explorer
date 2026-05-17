@@ -1,7 +1,8 @@
-﻿@using SetExplorer.Client.Pages.Shared
+﻿@using MudBlazor.Utilities
+@using SetExplorer.Client.Pages.Shared
 @inherits LayoutComponentBase
 
-<MudThemeProvider IsDarkMode />
+<MudThemeProvider IsDarkMode Theme="Theme" />
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
@@ -25,8 +26,8 @@
             </NotAuthorized>
         </AuthorizeView>
     </MudAppBar>
-    <MudMainContent Class="pt-16 pa-4" Style="min-height: 100vh">
-        <MudContainer>
+    <MudMainContent  Style="min-height: 100vh">
+        <MudContainer Style="margin-top: 1rem">
                 @Body
         </MudContainer>
     </MudMainContent>
@@ -39,4 +40,15 @@
     <span class="dismiss">🗙</span>
 </div>
 
+@code
+{
+    private static readonly MudTheme Theme = new()
+    {
+        PaletteDark = new PaletteDark
+        {
+            Background = new MudColor("#181818"),
+            LinesDefault = new MudColor(255, 255, 255, 0.33)
+        }
+    };
+}
 
