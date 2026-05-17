@@ -3,43 +3,48 @@ using SetExplorer.Client.Core.Cards;
 
 namespace SetExplorer.Client.Core.Scryfall.Models;
 
+public static class ScryfallCardExtensions
+{
+    public static string? GetPreferredImageUrl(this Dictionary<string, Uri> imageUrls)
+    {
+        if (imageUrls.Count == 0)
+        {
+            return null;
+        }
+
+        if (imageUrls.TryGetValue("normal", out var normal))
+        {
+            return normal.ToString();
+        }
+        
+        if (imageUrls.TryGetValue("border_crop", out var border))
+        {
+            return border.ToString();
+        }
+
+        if (imageUrls.TryGetValue("large", out var large))
+        {
+            return large.ToString();
+        }
+        
+        if (imageUrls.TryGetValue("small", out var small))
+        {
+            return small.ToString();
+        }
+
+        return imageUrls.FirstOrDefault().Value?.ToString();   
+    }
+}
+
 /// <summary>
 /// Card objects represent individual Magic: The Gathering cards that players could obtain and
 /// add to their collection (with a few minor exceptions).
 /// </summary>
 public sealed class ScryfallCard : BaseItem
 {
-    
-    
-    public string? GetCardImageUrl()
-    {
-        if (ImageUris.Count == 0)
-        {
-            return null;
-        }
 
-        if (ImageUris.TryGetValue("normal", out var normal))
-        {
-            return normal.ToString();
-        }
-        
-        if (ImageUris.TryGetValue("border_crop", out var border))
-        {
-            return border.ToString();
-        }
 
-        if (ImageUris.TryGetValue("large", out var large))
-        {
-            return large.ToString();
-        }
-        
-        if (ImageUris.TryGetValue("small", out var small))
-        {
-            return small.ToString();
-        }
-
-        return ImageUris.FirstOrDefault().Value?.ToString();
-    }
+    public string? GetCardImageUrl() => ImageUris.GetPreferredImageUrl();
 
     /// <summary>
     /// This cards defense if any

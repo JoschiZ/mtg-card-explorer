@@ -1,11 +1,34 @@
 @using SetExplorer.Client.Core.Scryfall.Models
 
 <div class="basicCard_border basicCard_container">
-    <img 
-        class="basicCard_image"
-        src="@_imageUrl"
-        alt="@Card.Name"
-        title="@Card.Name"/>
+    @if (!IsDoubleSided)
+    {
+        <img
+            class="basicCard_image"
+            src="@_imageUrl"
+            alt="@Card.Name"
+            title="@Card.Name"/>
+    }
+    else
+    {
+        <MudFab Class="turn-button" IconSize="Size.Small" Size="Size.Small" Color="Color.Transparent" StartIcon="@Icons.Material.Filled.TurnRight" OnClick="@(() => _showFrontSide = !_showFrontSide)"></MudFab>
+        if (_showFrontSide)
+        {
+            <img
+                class="basicCard_image"
+                src="@_frontSideImageUrl"
+                alt="@Card.Name"
+                title="@Card.Name"/>
+        }
+        else
+        {
+            <img
+                class="basicCard_image"
+                src="@_backSideImageUrl"
+                alt="@Card.Name"
+                title="@Card.Name"/>
+        }
+    } 
 </div>
 
 <style>
@@ -27,17 +50,33 @@
         width: 100%;
         user-select: none;
     }
+    
+    .turn-button{
+        position: absolute;
+        top: 12%;
+        left: 1%;
+        border: 1px solid var(--mud-palette-lines-inputs);
+    }
 </style>
 
 @code {
     [Parameter, EditorRequired]
     public required ScryfallCard Card { get; set; }
 
-    private string? _imageUrl;
+    private bool IsDoubleSided => Card.Layout == "modal_dfc";
+    private bool _showFrontSide;
 
+    private string? _imageUrl;
+    private string? _frontSideImageUrl;
+    private string? _backSideImageUrl;
     protected override void OnParametersSet()
     {
         _imageUrl = Card.GetCardImageUrl();
+        if (IsDoubleSided)
+        {
+            _frontSideImageUrl = Card.CardFaces[0].ImageUris.GetPreferredImageUrl();
+            _backSideImageUrl = Card.CardFaces[1].ImageUris.GetPreferredImageUrl();
+        }
     }
 
 }
