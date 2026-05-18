@@ -1,7 +1,7 @@
 @using SetExplorer.Client.Core.Scryfall.Models
 
 <div class="basicCard_border basicCard_container">
-    @if (!IsDoubleSided)
+    @if (!Card.IsDoubleSided)
     {
         <img
             class="basicCard_image"
@@ -31,6 +31,7 @@
     } 
 </div>
 
+<!--suppress CssUnresolvedCustomProperty -->
 <style>
     .basicCard_container{
         position: relative;
@@ -63,7 +64,6 @@
     [Parameter, EditorRequired]
     public required ScryfallCard Card { get; set; }
 
-    private bool IsDoubleSided => Card.Layout == "modal_dfc";
     private bool _showFrontSide;
 
     private string? _imageUrl;
@@ -72,7 +72,7 @@
     protected override void OnParametersSet()
     {
         _imageUrl = Card.GetCardImageUrl();
-        if (IsDoubleSided)
+        if (Card.IsDoubleSided)
         {
             _frontSideImageUrl = Card.CardFaces[0].ImageUris.GetPreferredImageUrl();
             _backSideImageUrl = Card.CardFaces[1].ImageUris.GetPreferredImageUrl();
