@@ -1,5 +1,8 @@
 ﻿@page "/"
+@using SetExplorer.Client.Core.Collections
+@using SetExplorer.Client.Core.Scryfall.Models
 @using SetExplorer.Client.Pages.Cards
+@using SetExplorer.Client.Pages.Collections
 
 <PageTitle>Home</PageTitle>
 
@@ -8,10 +11,28 @@
 </MudPaper>
 
 <MudPaper Outlined Style="height: 350px; display: flex; justify-content: center; align-content: center" Class="main-component">
-        <CardCarousel SearchString="@_searchString"></CardCarousel>
+        <CardCarousel SearchString="@_searchString" @bind-SelectedCard="_selectedCard"></CardCarousel>
 </MudPaper>
 
 <MudPaper Outlined Class="main-component">
+   @if (_selectedCard is not null)
+   {
+       <MudButton OnClick="@(() => _collections.Add(new CardCollectionDto
+                           {
+                               Name = "Card Collection",
+                               Id = default,
+                               Cards = [],
+                               UserId = default
+                           }))">Add</MudButton>
+       @foreach (var collection in _collections)
+       {
+           <CardCollectionDisplay Collection="collection">
+               <ToolBarContent>
+                   <MudButton OnClick="() => context.AddCardAsync(_selectedCard.Id)">Add</MudButton>
+               </ToolBarContent>
+           </CardCollectionDisplay>
+       }
+   } 
     
 </MudPaper>
 
@@ -23,6 +44,8 @@
 
 @code
 {
+    private List<CardCollectionDto> _collections =[];
     private string _searchString = "";
+    private ScryfallCard? _selectedCard;
 }
 

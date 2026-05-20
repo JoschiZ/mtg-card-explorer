@@ -1,3 +1,5 @@
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using SetExplorer.Client.Core.Cards;
 using SetExplorer.Client.Core.Explorations;
 
@@ -7,7 +9,7 @@ public sealed class CardCollectionDto
 {
     public required string Name { get; init; }
     public required CollectionId Id { get; init; }
-    public required List<ScryfallCardId> Cards { get; init; }
+    public required ObservableCollection<ScryfallCardId> Cards { get; init; }
     public required UserId UserId { get; init; }
 }
 

@@ -41,7 +41,8 @@
     public ScryfallCard? SelectedCard { get; set; } 
     [Parameter]
     public EventCallback<ScryfallCard?> SelectedCardChanged { get; set; }
-    
+
+    private string? _lastSearchString;
     
     [Parameter, EditorRequired]
     public required string SearchString { get; set; }
@@ -52,15 +53,27 @@
         {
             return;
         }
+
+        if (SearchString == _lastSearchString)
+        {
+            return;
+        }
+        _lastSearchString = SearchString;
         
         _currentSearchIterator = SearchClient.GetAllAsync(SearchString).GetAsyncEnumerator();
         _cards.Clear();
         await LoadNextCardsAsync(20);
+        if (_cards.Count > 0)
+        {
+            SelectedCard = _cards[_selectedIndex];
+            await SelectedCardChanged.InvokeAsync(SelectedCard);
+        }
+        
     }
 
     /// <summary>
     /// This is the page size of scryfalls search endpoint.
-    /// Thus this is how much we can simpyl load without additional IO calls
+    /// Thus this is how much we can simply load without additional IO calls
     /// </summary>
     private const int ScryfallSearchPageSize = 175;
     private async Task LoadNextCardsAsync(int entries = ScryfallSearchPageSize)
@@ -82,7 +95,6 @@
             _cards.Add(_currentSearchIterator.Current);
             itemsTaken++;
         }
-        StateHasChanged();
         _currentlyLoadingNewCards = false;
     }
 

@@ -1,21 +1,30 @@
+@using System.Collections.Specialized
 @using SetExplorer.Client.Core.Cards
 @using SetExplorer.Client.Core.Collections
 @using SetExplorer.Client.Pages.Cards
+@inject ISnackbar Snackbar
 <MudPaper Outlined>
     <MudStack AlignItems="AlignItems.Start" Justify="Justify.Center">
-        <MudText>@Collection.Name</MudText>
-        <MudDivider DividerType="DividerType.Middle"></MudDivider>
-        <div>
-            
-        @foreach (var card in Collection.Cards)
-        {
-            <MudStack Row AlignItems="AlignItems.Center" Style="width: 100%">
-                <CardNameDisplay CardId="card"></CardNameDisplay>
-                <MudSpacer></MudSpacer>
-                <MudIconButton Icon="@Icons.Material.Outlined.RemoveCircle" Color="Color.Warning" OnClick="@(() => RemoveCardAsync(card))"></MudIconButton>
-            </MudStack>
-        }
-        </div>
+        <MudTable Items="Collection.Cards" Bordered Dense Striped>
+            <ToolBarContent>
+                <MudText>@Collection.Name</MudText>        
+                <MudSpacer/>
+                @ToolBarContent?.Invoke(this)
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh>Name</MudTh>
+                <MudTh></MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>
+                    <CardNameDisplay CardId="context"></CardNameDisplay>
+                </MudTd>
+                <MudTd>
+                    <MudIconButton Icon="@Icons.Material.Outlined.RemoveCircle" Color="Color.Warning" OnClick="@(() => RemoveCardAsync(context))"></MudIconButton>
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+        
     </MudStack>
 </MudPaper>
 
@@ -23,11 +32,58 @@
     [Parameter, EditorRequired]
     public required CardCollectionDto Collection  { get; set; }
 
-    private Task RemoveCardAsync(ScryfallCardId card)
+    [Parameter]
+    public RenderFragment<CardCollectionDisplay>? ToolBarContent { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        Collection.Cards.CollectionChanged += Collection_CollectionChanged;
+        base.OnParametersSet();
+    }
+
+    private async void Collection_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (e.NewItems is not null)
+        {
+            foreach (var card in e.NewItems.Cast<ScryfallCardId>())
+            {
+                await OnCardAddedAsync(card);
+            }
+        }
+
+        if (e.Action is NotifyCollectionChangedAction.Remove or NotifyCollectionChangedAction.Replace && e.OldItems is not null)
+        {
+            foreach (var card in e.OldItems.Cast<ScryfallCardId>())
+            {
+                await OnCardRemovedAsync(card);
+            }
+        }
+    }
+
+    private async Task OnCardAddedAsync(ScryfallCardId card)
+    {
+        Snackbar.Add($"Added: {card}");
+    }
+
+    private async Task OnCardRemovedAsync(ScryfallCardId card)
+    {
+        Snackbar.Add($"Removed: {card}");
+    }
+    
+    public Task RemoveCardAsync(ScryfallCardId card)
     {
         Collection.Cards.Remove(card);
-        // TODO: Persist to DB if logged in
-        // TODO: OnValue Changed
+        return Task.CompletedTask;
+    }
+
+    public Task AddCardAsync(ScryfallCardId card)
+    {
+        if (Collection.Cards.Contains(card))
+        {
+            return Task.CompletedTask;
+        }
+        
+        Collection.Cards.Add(card);
         return Task.CompletedTask;
     }
 
