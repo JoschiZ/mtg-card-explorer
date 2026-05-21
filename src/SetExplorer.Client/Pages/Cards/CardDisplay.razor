@@ -2,7 +2,7 @@
 
 <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.Center" Style="height: 100%; width: 100%;" Spacing="4">
     <div style="flex: 0 0 auto; display: flex; justify-content: center;">
-        <CardImage Card="Card"></CardImage>
+        <CardImage Card="Card" IsSeen="IsSeen"></CardImage>
     </div>
     <div style="flex: 1 1 auto; min-width: 0; height: 100%; overflow-y: auto; padding-top: 1rem; padding-bottom: 1rem">
         @if (!Card.IsDoubleSided)
@@ -40,4 +40,7 @@
 @code {
     [Parameter, EditorRequired]
     public required ScryfallCard Card { get; set; }
+
+    [Parameter]
+    public bool IsSeen { get; set; }
 }

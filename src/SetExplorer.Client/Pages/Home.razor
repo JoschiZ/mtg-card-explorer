@@ -1,51 +1,164 @@
 ﻿@page "/"
+@using System.Collections.Specialized
+@using SetExplorer.Client.Core.Cards
 @using SetExplorer.Client.Core.Collections
 @using SetExplorer.Client.Core.Scryfall.Models
 @using SetExplorer.Client.Pages.Cards
 @using SetExplorer.Client.Pages.Collections
+@implements IDisposable
+@inject ILogger<Home> Logger
 
 <PageTitle>Home</PageTitle>
 
 <MudPaper Outlined Class="main-component">
-        <MudTextField Variant="Variant.Filled" FullWidth HelperText="Scryfall Search" Placeholder="set:mid" @bind-Value="@_searchString"></MudTextField>
+        <MudTextField Variant="Variant.Filled" FullWidth HelperText="Scryfall Search" Placeholder="set:mid" @bind-Value="@_exploration.SearchString"></MudTextField>
 </MudPaper>
 
 <MudPaper Outlined Style="height: 350px; display: flex; justify-content: center; align-content: center" Class="main-component">
-        <CardCarousel SearchString="@_searchString" @bind-SelectedCard="_selectedCard"></CardCarousel>
+        <CardCarousel SearchString="@_exploration.SearchString" SelectedCard="_selectedCard" SelectedCardChanged="@OnSelectedCardChanged" SeenCards="_exploration.SeenCards"></CardCarousel>
 </MudPaper>
 
-<MudPaper Outlined Class="main-component">
-   @if (_selectedCard is not null)
-   {
-       <MudButton OnClick="@(() => _collections.Add(new CardCollectionDto
-                           {
-                               Name = "Card Collection",
-                               Id = default,
-                               Cards = [],
-                               UserId = default
-                           }))">Add</MudButton>
-       @foreach (var collection in _collections)
-       {
-           <CardCollectionDisplay Collection="collection">
-               <ToolBarContent>
-                   <MudButton OnClick="() => context.AddCardAsync(_selectedCard.Id)">Add</MudButton>
-               </ToolBarContent>
-           </CardCollectionDisplay>
-       }
-   } 
-    
-</MudPaper>
+@if (_selectedCard is not null)
+{
+    <MudPaper Outlined Class="main-component pa-4 collections-container">
+        <div class="d-flex align-center mb-4">
+            <MudText Typo="Typo.h5">Your Collections</MudText>
+            <MudSpacer />
+            <MudButton StartIcon="@Icons.Material.Filled.Add" Variant="Variant.Filled" Color="Color.Primary" OnClick="@AddCollectionAsync">New Collection</MudButton>
+        </div>
+
+        <MudGrid Spacing="4">
+            @if (!_exploration.CardCollections.Any())
+            {
+                <MudItem xs="12">
+                    <MudAlert Severity="Severity.Info">You don't have any collections yet. Click "New Collection" to get started!</MudAlert>
+                </MudItem>
+            }
+            @foreach (var collection in _exploration.CardCollections)
+            {
+                <MudItem xs="12" md="6" lg="4" Class="d-flex">
+                    <CardCollectionDisplay Collection="collection" Class="flex-grow-1">
+                        <ToolBarContent>
+                            <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Primary" 
+                                           OnClick="@(() => context.AddCardAsync(_selectedCard.Id))"
+                                           Title="Add selected card to this collection" />
+                        </ToolBarContent>
+                    </CardCollectionDisplay>
+                </MudItem>
+            }
+        </MudGrid>
+    </MudPaper>
+}
 
 <style>
     .main-component{
         margin-bottom: 1rem;
     }
+    .collections-container {
+        min-height: 400px;
+    }
 </style>
 
 @code
 {
-    private List<CardCollectionDto> _collections =[];
-    private string _searchString = "";
+    private readonly ExplorationDto _exploration = new()
+    {
+        Name = "Default",
+        SearchString = "",
+        SeenCards = [],
+        UserId = default,
+        CardCollections = []
+    };
     private ScryfallCard? _selectedCard;
+
+    protected override void OnParametersSet()
+    {
+        _exploration.SeenCards.CollectionChanged += OnSeenCardsChanged;
+        _exploration.CardCollections.CollectionChanged += OnCardCollectionsChanged;
+    }
+
+    private async void OnCardCollectionsChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (e.NewItems is not null)
+        {
+            foreach (var collection in e.NewItems.Cast<CardCollectionDto>())
+            {
+                await OnCollectionAddedAsync(collection);
+            }
+        }
+
+        if (e.Action is NotifyCollectionChangedAction.Remove or NotifyCollectionChangedAction.Replace && e.OldItems is not null)
+        {
+            foreach (var collection in e.OldItems.Cast<CardCollectionDto>())
+            {
+                await OnCollectionRemovedAsync(collection);
+            }
+        }
+    }
+
+    private async Task OnCollectionRemovedAsync(CardCollectionDto collection)
+    {
+        // TODO: Persist to DB if the user is logged in
+        Logger.LogDebug("Remove collection {collection}", collection.Id);
+    }
+
+    private async Task OnCollectionAddedAsync(CardCollectionDto collection)
+    {
+        // TODO: Persist to DB if the user is logged in
+        Logger.LogDebug("Add collection {collection}", collection.Id);
+    }
+
+    private async void OnSeenCardsChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (e.NewItems is not null)
+        {
+            foreach (var card in e.NewItems.Cast<ScryfallCardId>())
+            {
+                await OnSeenCardAddedAsync(card);
+            }
+        }
+
+        if (e.Action is NotifyCollectionChangedAction.Remove or NotifyCollectionChangedAction.Replace && e.OldItems is not null)
+        {
+            foreach (var card in e.OldItems.Cast<ScryfallCardId>())
+            {
+                await OnSeenCardRemovedAsync(card);
+            }
+        }
+    }
+
+    private async Task OnSeenCardAddedAsync(ScryfallCardId card)
+    {
+        // TODO: Persist to DB if the user is logged in
+        Logger.LogDebug("Add seen card {card}", card);
+    }
+
+    private async Task OnSeenCardRemovedAsync(ScryfallCardId card)
+    {
+        // TODO: Persist to DB if the user is logged in
+        Logger.LogDebug("Remove seen card {card}", card);
+    }
+
+    private Task OnSelectedCardChanged(ScryfallCard? newSelectedCard)
+    {
+        if (_selectedCard is not null && !_exploration.SeenCards.Contains(_selectedCard.Id))
+        {
+            _exploration.SeenCards.Add(_selectedCard.Id);
+        }
+        _selectedCard = newSelectedCard;
+        
+        return Task.CompletedTask;
+    }
+
+    private async Task AddCollectionAsync()
+    {
+        
+    }
+
+    public void Dispose()
+    {
+        _exploration.SeenCards.CollectionChanged -= OnSeenCardsChanged;
+        _exploration.CardCollections.CollectionChanged -= OnCardCollectionsChanged;
+    }
 }
 

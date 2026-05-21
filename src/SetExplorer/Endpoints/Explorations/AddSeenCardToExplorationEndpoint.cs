@@ -6,12 +6,6 @@ using SetExplorer.Data.Cards;
 
 namespace SetExplorer.Endpoints.Explorations;
 
-public record AddSeenCardToExplorationRequest
-{
-    public Guid ExplorationId { get; init; }
-    public Guid CardId { get; init; }
-}
-
 public class AddSeenCardToExplorationEndpoint(ApplicationDbContext db) : FastEndpoints.Endpoint<AddSeenCardToExplorationRequest>
 {
     public override void Configure()

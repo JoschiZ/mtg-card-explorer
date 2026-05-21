@@ -1,3 +1,4 @@
+@using SetExplorer.Client.Core.Cards
 @using SetExplorer.Client.Core.Scryfall
 @using SetExplorer.Client.Core.Scryfall.Models
 @inject ScryfallSearchClient SearchClient
@@ -7,7 +8,7 @@
         @foreach (var card in _cards)
         {
             <MudCarouselItem Style="padding-left: 5%; padding-right: 5%">
-                <CardDisplay Card="card"/>
+                <CardDisplay Card="card" IsSeen="@SeenCards.Contains(card.Id)"/>
             </MudCarouselItem>
         }    
     </ChildContent>
@@ -36,11 +37,15 @@
     private List<ScryfallCard> _cards = [];
     private IAsyncEnumerator<ScryfallCard>? _currentSearchIterator;
     private int _selectedIndex;
-    
+
+
+    [Parameter] 
+    public ICollection<ScryfallCardId> SeenCards { get; set; } = [];
     [Parameter]
     public ScryfallCard? SelectedCard { get; set; } 
     [Parameter]
     public EventCallback<ScryfallCard?> SelectedCardChanged { get; set; }
+    
 
     private string? _lastSearchString;
     
@@ -112,8 +117,9 @@
             return;
         }
         
+        var newCard = _cards[newIndex];
         _selectedIndex = newIndex;
-        SelectedCard = _cards[newIndex];
+        SelectedCard = newCard;
         await SelectedCardChanged.InvokeAsync(SelectedCard);
         
         Logger.LogDebug("SelectedIndexChanged: {index}", newIndex);

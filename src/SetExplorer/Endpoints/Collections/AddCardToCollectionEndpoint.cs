@@ -7,12 +7,6 @@ using SetExplorer.Data.Cards;
 
 namespace SetExplorer.Endpoints.Collections;
 
-public record AddCardToCollectionRequest
-{
-    public required Guid CollectionId { get; init; }
-    public required Guid CardId { get; init; }
-}
-
 public class AddCardToCollectionEndpoint(ApplicationDbContext db) : FastEndpoints.Endpoint<AddCardToCollectionRequest>
 {
     public override void Configure()

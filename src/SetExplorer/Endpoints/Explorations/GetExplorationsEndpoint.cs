@@ -5,11 +5,6 @@ using SetExplorer.Data.Explorations;
 
 namespace SetExplorer.Endpoints.Explorations;
 
-public record GetExplorationsRequest
-{
-    public string? Name { get; init; }
-}
-
 public class GetExplorationsEndpoint(ApplicationDbContext db) : FastEndpoints.Endpoint<GetExplorationsRequest, List<Exploration>>
 {
     public override void Configure()

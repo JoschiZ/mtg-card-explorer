@@ -5,12 +5,6 @@ using SetExplorer.Data;
 
 namespace SetExplorer.Endpoints.Explorations;
 
-public record AddCollectionToExplorationRequest
-{
-    public Guid ExplorationId { get; init; }
-    public Guid CollectionId { get; init; }
-}
-
 public class AddCollectionToExplorationEndpoint(ApplicationDbContext db) : FastEndpoints.Endpoint<AddCollectionToExplorationRequest>
 {
     public override void Configure()

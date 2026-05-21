@@ -1,0 +1,26 @@
+@using SetExplorer.Client.Core.Collections
+<MudDialog>
+    <TitleContent>
+        New Collection
+    </TitleContent>
+    <DialogContent>
+        <MudForm Style="width: 100%">
+            <MudTextField T="string" Label="Collection Name" @bind-Value="_request.Name" Required="true" />
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">OK</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    private readonly CreateCollectionRequest _request = new() { Name = string.Empty };
+
+    private void Submit() => MudDialog.Close(DialogResult.Ok(_request));
+
+    private void Cancel() => MudDialog.Cancel();
+}

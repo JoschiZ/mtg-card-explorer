@@ -3,34 +3,58 @@
 @using SetExplorer.Client.Core.Collections
 @using SetExplorer.Client.Pages.Cards
 @inject ISnackbar Snackbar
-<MudPaper Outlined>
-    <MudStack AlignItems="AlignItems.Start" Justify="Justify.Center">
-        <MudTable Items="Collection.Cards" Bordered Dense Striped>
-            <ToolBarContent>
-                <MudText>@Collection.Name</MudText>        
-                <MudSpacer/>
-                @ToolBarContent?.Invoke(this)
-            </ToolBarContent>
-            <HeaderContent>
-                <MudTh>Name</MudTh>
-                <MudTh></MudTh>
-            </HeaderContent>
-            <RowTemplate>
-                <MudTd>
-                    <CardNameDisplay CardId="context"></CardNameDisplay>
-                </MudTd>
-                <MudTd>
-                    <MudIconButton Icon="@Icons.Material.Outlined.RemoveCircle" Color="Color.Warning" OnClick="@(() => RemoveCardAsync(context))"></MudIconButton>
-                </MudTd>
-            </RowTemplate>
-        </MudTable>
-        
-    </MudStack>
-</MudPaper>
+@implements IDisposable
+<MudCard Outlined Class="@($"h-100 {Class}")">
+    <MudCardHeader>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h6">@Collection.Name (@Collection.Cards.Count)</MudText>
+        </CardHeaderContent>
+        <CardHeaderActions>
+            @ToolBarContent?.Invoke(this)
+        </CardHeaderActions>
+    </MudCardHeader>
+    <MudCardContent>
+        @if (Collection.Cards.Any())
+        {
+            <div class="d-flex flex-wrap gap-1">
+                @foreach (var cardId in Collection.Cards)
+                {
+                    <div class="card-item-container">
+                        <CardNameDisplay CardId="cardId"></CardNameDisplay>
+                        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.RemoveCircle" Color="Color.Warning" OnClick="@(() => RemoveCardAsync(cardId))" Class="remove-btn" />
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="font-italic">No cards in this collection.</MudText>
+        }
+    </MudCardContent>
+</MudCard>
+
+<style>
+    .card-item-container {
+        display: flex;
+        align-items: center;
+        background-color: rgba(128, 128, 128, 0.1);
+        border: 1px solid rgba(128, 128, 128, 0.2);
+        border-radius: 4px;
+        padding-left: 8px;
+        justify-content: space-between;
+        width: 100%;
+    }
+    .remove-btn {
+        margin-left: 2px;
+    }
+</style>
 
 @code {
     [Parameter, EditorRequired]
     public required CardCollectionDto Collection  { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
 
     [Parameter]
     public RenderFragment<CardCollectionDisplay>? ToolBarContent { get; set; }
@@ -85,6 +109,11 @@
         
         Collection.Cards.Add(card);
         return Task.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+        Collection.Cards.CollectionChanged -= Collection_CollectionChanged;
     }
 
 }

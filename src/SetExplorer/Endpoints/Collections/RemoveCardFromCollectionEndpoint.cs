@@ -5,12 +5,6 @@ using SetExplorer.Data;
 
 namespace SetExplorer.Endpoints.Collections;
 
-public record RemoveCardFromCollectionRequest
-{
-    public Guid CollectionId { get; init; }
-    public Guid CardId { get; init; }
-}
-
 public class RemoveCardFromCollectionEndpoint(ApplicationDbContext db) : FastEndpoints.Endpoint<RemoveCardFromCollectionRequest>
 {
     public override void Configure()

@@ -5,11 +5,6 @@ using SetExplorer.Data.Collections;
 
 namespace SetExplorer.Endpoints.Collections;
 
-public record GetCollectionsRequest
-{
-    public string? Name { get; init; }
-}
-
 public class GetCollectionsEndpoint(ApplicationDbContext db) : FastEndpoints.Endpoint<GetCollectionsRequest, List<CardCollection>>
 {
     public override void Configure()
