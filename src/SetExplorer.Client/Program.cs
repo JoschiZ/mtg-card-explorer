@@ -1,9 +1,13 @@
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;
 using SetExplorer.Client.Core;
+using SetExplorer.Client.Core.Http;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
-
+var services = builder.Services;
+var configuration = builder.Configuration;
+services.AddTransient<AuthenticationDelegatingHandler>();
+builder.Services.AddHttpClients();
 builder.Services.AddSharedConfiguration();
 builder.Services.AddMudServices();
 
