@@ -1,7 +1,10 @@
 using Microsoft.EntityFrameworkCore;
-using SetExplorer.Client.Core.Collections;
-using SetExplorer.Client.Core.Explorations;
+
+
+using SetExplorer.Client.Features.Explorations;
 using SetExplorer.Data;
+using CollectionId = SetExplorer.Client.Features.Collections.CollectionId;
+
 
 namespace SetExplorer.Endpoints.Explorations;
 

@@ -1,5 +1,5 @@
 using System.Text.Json.Serialization;
-using SetExplorer.Client.Core.Cards;
+using SetExplorer.Client.Features.Cards;
 
 namespace SetExplorer.Client.Core.Scryfall.Models;
 

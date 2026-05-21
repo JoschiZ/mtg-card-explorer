@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SetExplorer.Client.Core;
-using SetExplorer.Client.Core.Cards;
+
 using SetExplorer.Data.Cards;
 
 namespace SetExplorer.Data;

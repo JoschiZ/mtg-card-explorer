@@ -1,9 +1,8 @@
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using SetExplorer.Client.Core.Cards;
-using SetExplorer.Client.Core.Explorations;
+using SetExplorer.Client.Core;
+using SetExplorer.Client.Features.Cards;
 
-namespace SetExplorer.Client.Core.Collections;
+namespace SetExplorer.Client.Features.Collections;
 
 public sealed class CardCollectionDto
 {

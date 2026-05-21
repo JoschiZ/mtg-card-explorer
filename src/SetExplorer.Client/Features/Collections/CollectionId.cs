@@ -1,6 +1,6 @@
 using Vogen;
 
-namespace SetExplorer.Client.Core.Collections;
+namespace SetExplorer.Client.Features.Collections;
 
 [ValueObject<Guid>]
 public readonly partial struct CollectionId;

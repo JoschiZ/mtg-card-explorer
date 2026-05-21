@@ -1,7 +1,8 @@
 using SetExplorer.Client.Core;
-using SetExplorer.Client.Core.Explorations;
+using SetExplorer.Client.Features.Explorations;
 using SetExplorer.Data.Cards;
 using SetExplorer.Data.Collections;
+
 
 namespace SetExplorer.Data.Explorations;
 

@@ -1,8 +1,8 @@
 using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Caching.Memory;
-using SetExplorer.Client.Core.Cards;
 using SetExplorer.Client.Core.Scryfall.Models;
+using SetExplorer.Client.Features.Cards;
 
 namespace SetExplorer.Client.Core.Scryfall;
 

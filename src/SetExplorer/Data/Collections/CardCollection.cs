@@ -1,7 +1,8 @@
 using SetExplorer.Client.Core;
-using SetExplorer.Client.Core.Collections;
+
 using SetExplorer.Data.Cards;
 using SetExplorer.Data.Explorations;
+using CollectionId = SetExplorer.Client.Features.Collections.CollectionId;
 
 namespace SetExplorer.Data.Collections;
 

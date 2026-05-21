@@ -1,8 +1,10 @@
 using SetExplorer.Client.Core;
-using SetExplorer.Client.Core.Cards;
-using SetExplorer.Client.Core.Collections;
-using SetExplorer.Client.Core.Explorations;
+using SetExplorer.Client.Features.Cards;
+using SetExplorer.Client.Features.Explorations;
 using Vogen;
+using CollectionId = SetExplorer.Client.Features.Collections.CollectionId;
+
+
 
 namespace SetExplorer.Data;
 

@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using SetExplorer.Client.Core.Cards;
-using SetExplorer.Client.Core.Collections;
+using SetExplorer.Client.Features.Cards;
+using SetExplorer.Client.Features.Collections;
 using SetExplorer.Data;
+using CollectionId = SetExplorer.Client.Features.Collections.CollectionId;
+
 
 namespace SetExplorer.Endpoints.Collections;
 

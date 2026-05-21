@@ -1,6 +1,7 @@
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
-using SetExplorer.Client.Core.Explorations;
+
+using SetExplorer.Client.Features.Explorations;
 using SetExplorer.Data;
 
 namespace SetExplorer.Endpoints.Explorations;

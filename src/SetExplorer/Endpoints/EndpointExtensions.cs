@@ -2,8 +2,8 @@ using System.Security.Claims;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
 using SetExplorer.Client.Core;
-using SetExplorer.Client.Core.Cards;
-using SetExplorer.Client.Core.Collections;
+
+
 using SetExplorer.Data;
 
 namespace SetExplorer.Endpoints;

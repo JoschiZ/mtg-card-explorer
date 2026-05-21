@@ -1,6 +1,6 @@
 using Vogen;
 
-namespace SetExplorer.Client.Core.Explorations;
+namespace SetExplorer.Client.Features.Explorations;
 
 [ValueObject<Guid>]
 public readonly partial struct ExplorationId;

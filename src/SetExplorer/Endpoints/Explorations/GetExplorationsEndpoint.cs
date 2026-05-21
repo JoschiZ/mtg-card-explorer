@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using SetExplorer.Client.Core.Explorations;
+
+using SetExplorer.Client.Features.Explorations;
 using SetExplorer.Data;
 using SetExplorer.Data.Explorations;
 

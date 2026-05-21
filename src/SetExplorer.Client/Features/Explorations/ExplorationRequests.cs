@@ -1,4 +1,4 @@
-namespace SetExplorer.Client.Core.Explorations;
+namespace SetExplorer.Client.Features.Explorations;
 
 public record AddCollectionToExplorationRequest
 {

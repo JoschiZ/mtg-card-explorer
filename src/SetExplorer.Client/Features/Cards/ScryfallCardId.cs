@@ -1,6 +1,6 @@
 using Vogen;
 
-namespace SetExplorer.Client.Core.Cards;
+namespace SetExplorer.Client.Features.Cards;
 
 [ValueObject<Guid>(customizations: Customizations.None)]
 public readonly partial struct ScryfallCardId;
