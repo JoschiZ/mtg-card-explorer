@@ -8,9 +8,12 @@ using MudBlazor.Services;
 using Scalar.AspNetCore;
 using SetExplorer.Client.Core;
 using SetExplorer.Client.Core.Scryfall;
+using SetExplorer.Client.Features.Collections;
 using SetExplorer.Components;
 using SetExplorer.Components.Account;
+using SetExplorer.Components.Collections;
 using SetExplorer.Data;
+using SetExplorer.Endpoints.Collections;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,6 +48,9 @@ builder.Services.OpenApiDocument(o =>
 });
 builder.Services.AddOpenApi();
 builder.Services.AddAntiforgery();
+
+builder.Services.AddScoped<ICollectionsClient, ServerCollectionsClient>();
+builder.Services.AddScoped<CardCollectionService>();
 
 
 builder.Services.AddAuthentication(options =>

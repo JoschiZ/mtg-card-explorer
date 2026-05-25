@@ -1,3 +1,5 @@
+using SetExplorer.Client.Features.Collections;
+
 namespace SetExplorer.Client.Core.Http;
 
 internal static class HttpExtensions

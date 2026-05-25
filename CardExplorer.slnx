@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/project-files/">
     <File Path=".gitignore" />
+    <File Path=".junie\guidelines.md" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/SetExplorer.Client/SetExplorer.Client.csproj" />

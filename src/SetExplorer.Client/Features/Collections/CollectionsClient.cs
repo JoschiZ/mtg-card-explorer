@@ -1,22 +1,13 @@
 using System.Net.Http.Json;
-using SetExplorer.Client.Features.Collections;
 
-namespace SetExplorer.Client.Core.Http;
+namespace SetExplorer.Client.Features.Collections;
 
-public interface ICollectionsClient
+internal class CollectionsClient(HttpClient httpClient) : ICollectionsClient
 {
-    Task<List<CardCollectionDto>> GetCollectionsAsync(GetCollectionsRequest request, CancellationToken ct = default);
-    Task<CardCollectionDto?> CreateCollectionAsync(CreateCollectionRequest request, CancellationToken ct = default);
-    Task AddCardToCollectionAsync(AddCardToCollectionRequest request, CancellationToken ct = default);
-    Task RemoveCardFromCollectionAsync(RemoveCardFromCollectionRequest request, CancellationToken ct = default);
-}
-
-public class CollectionsClient(HttpClient httpClient) : ICollectionsClient
-{
-    public async Task<List<CardCollectionDto>> GetCollectionsAsync(GetCollectionsRequest request, CancellationToken ct = default)
+    public async Task<CardCollectionDto[]> GetCollectionsAsync(GetCollectionsRequest request, CancellationToken ct = default)
     {
         var url = $"/collections?Name={Uri.EscapeDataString(request.Name ?? string.Empty)}";
-        return await httpClient.GetFromJsonAsync<List<CardCollectionDto>>(url, ct) ?? [];
+        return await httpClient.GetFromJsonAsync<CardCollectionDto[]>(url, ct) ?? [];
     }
 
     public async Task<CardCollectionDto?> CreateCollectionAsync(CreateCollectionRequest request, CancellationToken ct = default)

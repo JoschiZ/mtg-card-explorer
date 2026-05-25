@@ -40,8 +40,7 @@
                     <CardCollectionDisplay Collection="collection" Class="flex-grow-1">
                         <ToolBarContent>
                             <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Primary" 
-                                           OnClick="@(() => context.AddCardAsync(_selectedCard.Id))"
-                                           Title="Add selected card to this collection" />
+                                           OnClick="@(() => context.AddCardAsync(_selectedCard.Id))"/>
                         </ToolBarContent>
                     </CardCollectionDisplay>
                 </MudItem>

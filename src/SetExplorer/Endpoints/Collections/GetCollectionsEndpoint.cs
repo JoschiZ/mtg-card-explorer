@@ -6,8 +6,15 @@ using SetExplorer.Data.Collections;
 
 namespace SetExplorer.Endpoints.Collections;
 
-public class GetCollectionsEndpoint(ApplicationDbContext db) : FastEndpoints.Endpoint<GetCollectionsRequest, List<CardCollection>>
+internal class GetCollectionsEndpoint : FastEndpoints.Endpoint<GetCollectionsRequest, CardCollectionDto[]>
 {
+    private readonly CardCollectionService _cardCollectionService;
+
+    public GetCollectionsEndpoint(CardCollectionService cardCollectionService)
+    {
+        _cardCollectionService = cardCollectionService;
+    }
+
     public override void Configure()
     {
         Get("/collections");
@@ -16,16 +23,7 @@ public class GetCollectionsEndpoint(ApplicationDbContext db) : FastEndpoints.End
     public override async Task HandleAsync(GetCollectionsRequest req, CancellationToken ct)
     {
         var userId = this.GetUserId();
-        var query = db.Users
-            .Where(u => u.Id == userId)
-            .SelectMany(u => u.CardCollections);
-
-        if (!string.IsNullOrWhiteSpace(req.Name))
-        {
-            query = query.Where(c => c.Name.Contains(req.Name));
-        }
-
-        var collections = await query.ToListAsync(ct);
-        await Send.OkAsync(collections, ct);
+        var result = await _cardCollectionService.SearchCollectionsAsync(userId, req, ct);
+        await result.Match(x => Send.OkAsync(x, ct));
     }
 }
