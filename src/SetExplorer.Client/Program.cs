@@ -6,11 +6,10 @@ using SetExplorer.Client.Core.Http;
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 var services = builder.Services;
 var configuration = builder.Configuration;
-services.AddTransient<AuthenticationDelegatingHandler>();
-builder.Services.AddHttpClients();
+
+services.AddApiClients(new Uri(builder.HostEnvironment.BaseAddress));
 builder.Services.AddSharedConfiguration();
 builder.Services.AddMudServices();
-
 builder.Services.AddAuthorizationCore();
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddAuthenticationStateDeserialization();

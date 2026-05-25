@@ -1,3 +1,7 @@
+@using SetExplorer.Client.Core.Http
+@inject ICollectionsClient CollectionsClient
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
 <MudDialog>
     <TitleContent>
         New Collection
@@ -15,11 +19,34 @@
 
 @code {
     [CascadingParameter]
-    private IMudDialogInstance MudDialog { get; set; } = default!;
+    private IMudDialogInstance MudDialog { get; set; } = null!;
+    
+    private readonly CreateCollectionRequest _request = new() { Name = "" };
 
-    private readonly CreateCollectionRequest _request = new() { Name = string.Empty };
+    private async Task Submit()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity?.IsAuthenticated != true)
+        {
+            var localCollection = new CardCollectionDto
+            {
+                Name = _request.Name,
+                Id = default,
+                Cards = [],
+                UserId = default
+            };
+            MudDialog.Close(DialogResult.Ok(localCollection));
+            return;
+        }
 
-    private void Submit() => MudDialog.Close(DialogResult.Ok(_request));
+        var collection = await CollectionsClient.CreateCollectionAsync(_request);
+        if (collection == null)
+        {
+            MudDialog.Cancel();
+            return;
+        }
+        MudDialog.Close(DialogResult.Ok(collection));
+    }
 
     private void Cancel() => MudDialog.Cancel();
 }

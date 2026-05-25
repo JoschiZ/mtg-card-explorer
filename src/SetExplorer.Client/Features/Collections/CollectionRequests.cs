@@ -1,3 +1,4 @@
+
 namespace SetExplorer.Client.Features.Collections;
 
 public record AddCardToCollectionRequest

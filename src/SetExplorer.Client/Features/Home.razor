@@ -1,10 +1,12 @@
 ﻿@page "/"
 @using System.Collections.Specialized
+@using SetExplorer.Client.Core
 @using SetExplorer.Client.Core.Scryfall.Models
 @using SetExplorer.Client.Features.Cards
 @using SetExplorer.Client.Features.Collections
 @implements IDisposable
 @inject ILogger<Home> Logger
+@inject IDialogService DialogService
 
 <PageTitle>Home</PageTitle>
 
@@ -150,7 +152,11 @@
 
     private async Task AddCollectionAsync()
     {
-        
+        var collection = await DialogService.CreateCollectionAsync();
+        if (collection is not null)
+        {
+            _exploration.CardCollections.Add(collection);
+        }
     }
 
     public void Dispose()
