@@ -21,7 +21,7 @@ internal static class HttpExtensions
             return services
                 .AddHttpClient<TInterface, TClient>((provider, client) =>
                 {
-                    client.BaseAddress = baseUri;
+                    client.BaseAddress = new Uri(baseUri, "api/");;
                 })
                 .AddHttpMessageHandler<AuthenticationDelegatingHandler>();
         }

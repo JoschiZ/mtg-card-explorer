@@ -7,13 +7,15 @@ public class ExplorationsClient(HttpClient httpClient) : IExplorationsClient
 {
     public async Task<List<ExplorationDto>> GetExplorationsAsync(GetExplorationsRequest request, CancellationToken ct = default)
     {
-        var url = $"/explorations?Name={Uri.EscapeDataString(request.Name ?? string.Empty)}";
+        var query = request.Name is not null ? $"?Name={Uri.EscapeDataString(request.Name)}" : string.Empty;
+        
+        var url = $"explorations{query}";
         return await httpClient.GetFromJsonAsync<List<ExplorationDto>>(url, ct) ?? [];
     }
 
     public async Task<ExplorationDto?> CreateExplorationAsync(CreateExplorationRequest request, CancellationToken ct = default)
     {
-        var response = await httpClient.PostAsJsonAsync("/explorations", request, ct);
+        var response = await httpClient.PostAsJsonAsync("explorations", request, ct);
         if (response.IsSuccessStatusCode)
         {
             return await response.Content.ReadFromJsonAsync<ExplorationDto>(ct);
@@ -23,31 +25,31 @@ public class ExplorationsClient(HttpClient httpClient) : IExplorationsClient
 
     public async Task UpdateExplorationAsync(PatchExplorationRequest request, CancellationToken ct = default)
     {
-        var url = $"/explorations/{request.Id}";
+        var url = $"explorations/{request.Id}";
         await httpClient.PatchAsJsonAsync(url, request, ct);
     }
 
     public async Task AddCollectionToExplorationAsync(AddCollectionToExplorationRequest request, CancellationToken ct = default)
     {
-        var url = $"/explorations/{request.ExplorationId}/collections/{request.CollectionId}";
+        var url = $"explorations/{request.ExplorationId}/collections/{request.CollectionId}";
         await httpClient.PostAsync(url, null, ct);
     }
 
     public async Task RemoveCollectionFromExplorationAsync(RemoveCollectionFromExplorationRequest request, CancellationToken ct = default)
     {
-        var url = $"/explorations/{request.ExplorationId}/collections/{request.CollectionId}";
+        var url = $"explorations/{request.ExplorationId}/collections/{request.CollectionId}";
         await httpClient.DeleteAsync(url, ct);
     }
 
     public async Task AddSeenCardToExplorationAsync(AddSeenCardToExplorationRequest request, CancellationToken ct = default)
     {
-        var url = $"/explorations/{request.ExplorationId}/seen-cards/{request.CardId}";
+        var url = $"explorations/{request.ExplorationId}/seen-cards/{request.CardId}";
         await httpClient.PostAsync(url, null, ct);
     }
 
     public async Task RemoveSeenCardFromExplorationAsync(RemoveSeenCardFromExplorationRequest request, CancellationToken ct = default)
     {
-        var url = $"/explorations/{request.ExplorationId}/seen-cards/{request.CardId}";
+        var url = $"explorations/{request.ExplorationId}/seen-cards/{request.CardId}";
         await httpClient.DeleteAsync(url, ct);
     }
 }

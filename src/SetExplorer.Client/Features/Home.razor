@@ -1,167 +1,183 @@
 ﻿@page "/"
-@using System.Collections.Specialized
 @using SetExplorer.Client.Core
-@using SetExplorer.Client.Core.Scryfall.Models
-@using SetExplorer.Client.Features.Cards
 @using SetExplorer.Client.Features.Collections
-@implements IDisposable
-@inject ILogger<Home> Logger
-@inject IDialogService DialogService
+@using SetExplorer.Client.Features.Explorations
+@using System.Collections.ObjectModel
+@using SetExplorer.Client.Features.Cards
+@inject IExplorationsClient ExplorationsClient
+@inject AuthenticationStateProvider AuthStateProvider
+@inject ISnackbar Snackbar
 
 <PageTitle>Home</PageTitle>
 
-<MudPaper Outlined Class="main-component">
-        <MudTextField Variant="Variant.Filled" FullWidth HelperText="Scryfall Search" Placeholder="set:mid" @bind-Value="@_exploration.SearchString"></MudTextField>
-</MudPaper>
-
-<MudPaper Outlined Style="height: 350px; display: flex; justify-content: center; align-content: center" Class="main-component">
-        <CardCarousel SearchString="@_exploration.SearchString" SelectedCard="_selectedCard" SelectedCardChanged="@OnSelectedCardChanged" SeenCards="_exploration.SeenCards"></CardCarousel>
-</MudPaper>
-
-@if (_selectedCard is not null)
+@if (_currentExploration == null)
 {
-    <MudPaper Outlined Class="main-component pa-4 collections-container">
-        <div class="d-flex align-center mb-4">
-            <MudText Typo="Typo.h5">Your Collections</MudText>
-            <MudSpacer />
-            <MudButton StartIcon="@Icons.Material.Filled.Add" Variant="Variant.Filled" Color="Color.Primary" OnClick="@AddCollectionAsync">New Collection</MudButton>
-        </div>
+    <MudText Typo="Typo.h3" Class="mb-6">Card Explorer</MudText>
 
-        <MudGrid Spacing="4">
-            @if (!_exploration.CardCollections.Any())
-            {
-                <MudItem xs="12">
-                    <MudAlert Severity="Severity.Info">You don't have any collections yet. Click "New Collection" to get started!</MudAlert>
-                </MudItem>
-            }
-            @foreach (var collection in _exploration.CardCollections)
-            {
-                <MudItem xs="12" md="6" lg="4" Class="d-flex">
-                    <CardCollectionDisplay Collection="collection" Class="flex-grow-1">
-                        <ToolBarContent>
-                            <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Primary" 
-                                           OnClick="@(() => context.AddCardAsync(_selectedCard.Id))"/>
-                        </ToolBarContent>
-                    </CardCollectionDisplay>
-                </MudItem>
-            }
-        </MudGrid>
+    <AuthorizeView>
+        <Authorized>
+            <MudText Typo="Typo.h5" Class="mb-4">Resume Exploration</MudText>
+            <MudGrid Class="mb-8">
+                @if (_loading)
+                {
+                    <MudItem xs="12">
+                        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                    </MudItem>
+                }
+                else if (_explorations.Any())
+                {
+                    @foreach (var exploration in _explorations)
+                    {
+                        <MudItem xs="12" sm="6" md="4">
+                            <MudCard Elevation="2">
+                                <MudCardHeader>
+                                    <CardHeaderContent>
+                                        <MudText Typo="Typo.h6">@exploration.Name</MudText>
+                                        <MudText Typo="Typo.body2">@exploration.SearchString</MudText>
+                                    </CardHeaderContent>
+                                </MudCardHeader>
+                                <MudCardActions>
+                                    <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="@(() => ResumeExploration(exploration))">Resume</MudButton>
+                                </MudCardActions>
+                            </MudCard>
+                        </MudItem>
+                    }
+                }
+                else
+                {
+                    <MudItem xs="12">
+                        <MudAlert Severity="Severity.Info">No explorations found. Start a new one below!</MudAlert>
+                    </MudItem>
+                }
+            </MudGrid>
+        </Authorized>
+        <NotAuthorized>
+            <MudAlert Severity="Severity.Info" Class="mb-8">
+                <MudLink Href="Account/Login">Log in</MudLink> to save your explorations and resume them later.
+            </MudAlert>
+        </NotAuthorized>
+    </AuthorizeView>
+
+    <MudPaper Class="pa-6" Elevation="3">
+        <MudText Typo="Typo.h5" Class="mb-4">Start New Exploration</MudText>
+        <MudForm @ref="_form" @bind-IsValid="@_formValid">
+            <MudTextField T="string" Label="Exploration Name" @bind-Value="_newName" Required="true" RequiredError="Name is required!" />
+            <MudTextField T="string" Label="Search String (e.g., set:mid)" @bind-Value="_newSearchString" Required="true" RequiredError="Search string is required!" />
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-4" Disabled="@(!_formValid || _creating)" OnClick="StartNewExploration">
+                @if (_creating)
+                {
+                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                    <MudText Class="ms-2">Creating...</MudText>
+                }
+                else
+                {
+                    <MudText>Start Exploration</MudText>
+                }
+            </MudButton>
+        </MudForm>
     </MudPaper>
 }
-
-<style>
-    .main-component{
-        margin-bottom: 1rem;
-    }
-    .collections-container {
-        min-height: 400px;
-    }
-</style>
-
-@code
+else
 {
-    private readonly ExplorationDto _exploration = new()
-    {
-        Name = "Default",
-        SearchString = "",
-        SeenCards = [],
-        UserId = default,
-        CardCollections = []
-    };
-    private ScryfallCard? _selectedCard;
-
-    protected override void OnParametersSet()
-    {
-        _exploration.SeenCards.CollectionChanged += OnSeenCardsChanged;
-        _exploration.CardCollections.CollectionChanged += OnCardCollectionsChanged;
-    }
-
-    private async void OnCardCollectionsChanged(object? sender, NotifyCollectionChangedEventArgs e)
-    {
-        if (e.NewItems is not null)
-        {
-            foreach (var collection in e.NewItems.Cast<CardCollectionDto>())
-            {
-                await OnCollectionAddedAsync(collection);
-            }
-        }
-
-        if (e.Action is NotifyCollectionChangedAction.Remove or NotifyCollectionChangedAction.Replace && e.OldItems is not null)
-        {
-            foreach (var collection in e.OldItems.Cast<CardCollectionDto>())
-            {
-                await OnCollectionRemovedAsync(collection);
-            }
-        }
-    }
-
-    private async Task OnCollectionRemovedAsync(CardCollectionDto collection)
-    {
-        // TODO: Persist to DB if the user is logged in
-        Logger.LogDebug("Remove collection {collection}", collection.Id);
-    }
-
-    private async Task OnCollectionAddedAsync(CardCollectionDto collection)
-    {
-        // TODO: Persist to DB if the user is logged in
-        Logger.LogDebug("Add collection {collection}", collection.Id);
-    }
-
-    private async void OnSeenCardsChanged(object? sender, NotifyCollectionChangedEventArgs e)
-    {
-        if (e.NewItems is not null)
-        {
-            foreach (var card in e.NewItems.Cast<ScryfallCardId>())
-            {
-                await OnSeenCardAddedAsync(card);
-            }
-        }
-
-        if (e.Action is NotifyCollectionChangedAction.Remove or NotifyCollectionChangedAction.Replace && e.OldItems is not null)
-        {
-            foreach (var card in e.OldItems.Cast<ScryfallCardId>())
-            {
-                await OnSeenCardRemovedAsync(card);
-            }
-        }
-    }
-
-    private async Task OnSeenCardAddedAsync(ScryfallCardId card)
-    {
-        // TODO: Persist to DB if the user is logged in
-        Logger.LogDebug("Add seen card {card}", card);
-    }
-
-    private async Task OnSeenCardRemovedAsync(ScryfallCardId card)
-    {
-        // TODO: Persist to DB if the user is logged in
-        Logger.LogDebug("Remove seen card {card}", card);
-    }
-
-    private Task OnSelectedCardChanged(ScryfallCard? newSelectedCard)
-    {
-        if (_selectedCard is not null && !_exploration.SeenCards.Contains(_selectedCard.Id))
-        {
-            _exploration.SeenCards.Add(_selectedCard.Id);
-        }
-        _selectedCard = newSelectedCard;
-        
-        return Task.CompletedTask;
-    }
-
-    private async Task AddCollectionAsync()
-    {
-        var collection = await DialogService.CreateCollectionAsync();
-        if (collection is not null)
-        {
-            _exploration.CardCollections.Add(collection);
-        }
-    }
-
-    public void Dispose()
-    {
-        _exploration.SeenCards.CollectionChanged -= OnSeenCardsChanged;
-        _exploration.CardCollections.CollectionChanged -= OnCardCollectionsChanged;
-    }
+    <div class="d-flex align-center mb-4">
+        <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" OnClick="BackToHome" />
+        <MudText Typo="Typo.h4" Class="ml-2">@_currentExploration.Name</MudText>
+    </div>
+    <ExporationEditor Exploration="_currentExploration" />
 }
 
+@code {
+    private List<ExplorationDto> _explorations = [];
+    private ExplorationDto? _currentExploration;
+    private bool _loading = true;
+    private bool _creating;
+    private bool _formValid;
+    private MudForm _form = null!;
+
+    private string _newName = string.Empty;
+    private string _newSearchString = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity?.IsAuthenticated == true)
+        {
+            await LoadExplorations();
+        }
+        _loading = false;
+    }
+
+    private async Task LoadExplorations()
+    {
+        try
+        {
+            _explorations = await ExplorationsClient.GetExplorationsAsync(new GetExplorationsRequest());
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("Failed to load explorations.", Severity.Error);
+        }
+    }
+
+    private void ResumeExploration(ExplorationDto exploration)
+    {
+        _currentExploration = exploration;
+    }
+
+    private async Task StartNewExploration()
+    {
+        await _form.ValidateAsync();
+        if (!_formValid) return;
+
+        _creating = true;
+        try
+        {
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            if (authState.User.Identity?.IsAuthenticated == true)
+            {
+                var request = new CreateExplorationRequest
+                {
+                    Name = _newName,
+                    SearchString = _newSearchString
+                };
+                var created = await ExplorationsClient.CreateExplorationAsync(request);
+                if (created != null)
+                {
+                    _currentExploration = created;
+                }
+                else
+                {
+                    Snackbar.Add("Failed to create exploration.", Severity.Error);
+                }
+            }
+            else
+            {
+                // Guest exploration
+                _currentExploration = new ExplorationDto
+                {
+                    Name = _newName,
+                    SearchString = _newSearchString,
+                    SeenCards = [],
+                    UserId = UserId.Parse(Guid.Empty.ToString()),
+                    CardCollections = []
+                };
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("An error occurred while starting the exploration.", Severity.Error);
+        }
+        finally
+        {
+            _creating = false;
+        }
+    }
+
+    private async Task BackToHome()
+    {
+        _currentExploration = null;
+        _newName = string.Empty;
+        _newSearchString = string.Empty;
+        await LoadExplorations();
+    }
+}
