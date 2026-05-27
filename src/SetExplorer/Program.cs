@@ -9,11 +9,14 @@ using Scalar.AspNetCore;
 using SetExplorer.Client.Core;
 using SetExplorer.Client.Core.Scryfall;
 using SetExplorer.Client.Features.Collections;
+using SetExplorer.Client.Features.Explorations;
 using SetExplorer.Components;
 using SetExplorer.Components.Account;
 using SetExplorer.Components.Collections;
+using SetExplorer.Components.Explorations;
 using SetExplorer.Data;
 using SetExplorer.Endpoints.Collections;
+using SetExplorer.Endpoints.Explorations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,6 +54,8 @@ builder.Services.AddAntiforgery();
 
 builder.Services.AddScoped<ICollectionsClient, ServerCollectionsClient>();
 builder.Services.AddScoped<CardCollectionService>();
+builder.Services.AddScoped<IExplorationsClient, ServerExplorationsClient>();
+builder.Services.AddScoped<ExplorationService>();
 
 
 builder.Services.AddAuthentication(options =>

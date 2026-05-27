@@ -1,12 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 
+using SetExplorer.Client.Features.Collections;
 using SetExplorer.Client.Features.Explorations;
 using SetExplorer.Data;
 using SetExplorer.Data.Explorations;
 
 namespace SetExplorer.Endpoints.Explorations;
 
-public class CreateExplorationEndpoint(ApplicationDbContext db) : FastEndpoints.Endpoint<CreateExplorationRequest, Exploration>
+internal class CreateExplorationEndpoint(ExplorationService explorationService) : FastEndpoints.Endpoint<CreateExplorationRequest, ExplorationDto>
 {
     public override void Configure()
     {
@@ -16,23 +17,11 @@ public class CreateExplorationEndpoint(ApplicationDbContext db) : FastEndpoints.
     public override async Task HandleAsync(CreateExplorationRequest req, CancellationToken ct)
     {
         var userId = this.GetUserId();
-        var exploration = new Exploration
-        {
-            Name = req.Name,
-            SearchString = req.SearchString,
-            UserId = userId
-        };
+        var result = await explorationService.CreateAsync(userId, req, ct);
 
-        var userEntity = await db.Users.Include(u => u.Explorations).FirstOrDefaultAsync(u => u.Id == userId, ct);
-        if (userEntity == null)
-        {
-            await Send.ResponseAsync(null, 401, ct);
-            return;
-        }
-        
-        userEntity.Explorations.Add(exploration);
-        await db.SaveChangesAsync(ct);
-
-        await Send.CreatedAtAsync<CreateExplorationEndpoint>(new { exploration.Id }, exploration, cancellation: ct);
+        await result.Match(
+            exploration => Send.OkAsync(exploration, ct),
+            _ => Send.UnauthorizedAsync(ct)
+        );
     }
 }

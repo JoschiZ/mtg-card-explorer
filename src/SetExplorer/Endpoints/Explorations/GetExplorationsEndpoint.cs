@@ -1,12 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 
+using SetExplorer.Client.Features.Collections;
 using SetExplorer.Client.Features.Explorations;
 using SetExplorer.Data;
 using SetExplorer.Data.Explorations;
 
 namespace SetExplorer.Endpoints.Explorations;
 
-public class GetExplorationsEndpoint(ApplicationDbContext db) : FastEndpoints.Endpoint<GetExplorationsRequest, List<Exploration>>
+internal class GetExplorationsEndpoint(ExplorationService explorationService) : FastEndpoints.Endpoint<GetExplorationsRequest, List<ExplorationDto>>
 {
     public override void Configure()
     {
@@ -16,16 +17,7 @@ public class GetExplorationsEndpoint(ApplicationDbContext db) : FastEndpoints.En
     public override async Task HandleAsync(GetExplorationsRequest req, CancellationToken ct)
     {
         var userId = this.GetUserId();
-        var query = db.Users
-            .Where(u => u.Id == userId)
-            .SelectMany(u => u.Explorations);
-
-        if (!string.IsNullOrWhiteSpace(req.Name))
-        {
-            query = query.Where(c => c.Name.Contains(req.Name));
-        }
-
-        var explorations = await query.ToListAsync(ct);
+        var explorations = await explorationService.GetAsync(userId, req, ct);
         await Send.OkAsync(explorations, ct);
     }
 }

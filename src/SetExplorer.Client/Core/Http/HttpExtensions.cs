@@ -1,4 +1,5 @@
 using SetExplorer.Client.Features.Collections;
+using SetExplorer.Client.Features.Explorations;
 
 namespace SetExplorer.Client.Core.Http;
 

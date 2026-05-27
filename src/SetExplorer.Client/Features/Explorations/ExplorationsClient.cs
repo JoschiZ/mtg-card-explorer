@@ -1,19 +1,7 @@
 using System.Net.Http.Json;
 using SetExplorer.Client.Features.Collections;
-using SetExplorer.Client.Features.Explorations;
 
-namespace SetExplorer.Client.Core.Http;
-
-public interface IExplorationsClient
-{
-    Task<List<ExplorationDto>> GetExplorationsAsync(GetExplorationsRequest request, CancellationToken ct = default);
-    Task<ExplorationDto?> CreateExplorationAsync(CreateExplorationRequest request, CancellationToken ct = default);
-    Task UpdateExplorationAsync(PatchExplorationRequest request, CancellationToken ct = default);
-    Task AddCollectionToExplorationAsync(AddCollectionToExplorationRequest request, CancellationToken ct = default);
-    Task RemoveCollectionFromExplorationAsync(RemoveCollectionFromExplorationRequest request, CancellationToken ct = default);
-    Task AddSeenCardToExplorationAsync(AddSeenCardToExplorationRequest request, CancellationToken ct = default);
-    Task RemoveSeenCardFromExplorationAsync(RemoveSeenCardFromExplorationRequest request, CancellationToken ct = default);
-}
+namespace SetExplorer.Client.Features.Explorations;
 
 public class ExplorationsClient(HttpClient httpClient) : IExplorationsClient
 {

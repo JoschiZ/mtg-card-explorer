@@ -1,15 +1,18 @@
+using SetExplorer.Client.Features.Cards;
+using SetExplorer.Client.Features.Collections;
+
 namespace SetExplorer.Client.Features.Explorations;
 
 public record AddCollectionToExplorationRequest
 {
-    public Guid ExplorationId { get; init; }
-    public Guid CollectionId { get; init; }
+    public ExplorationId ExplorationId { get; init; }
+    public CollectionId CollectionId { get; init; }
 }
 
 public record AddSeenCardToExplorationRequest
 {
-    public Guid ExplorationId { get; init; }
-    public Guid CardId { get; init; }
+    public ExplorationId ExplorationId { get; init; }
+    public ScryfallCardId CardId { get; init; }
 }
 
 public record CreateExplorationRequest
@@ -25,14 +28,14 @@ public record GetExplorationsRequest
 
 public record RemoveCollectionFromExplorationRequest
 {
-    public Guid ExplorationId { get; init; }
-    public Guid CollectionId { get; init; }
+    public ExplorationId ExplorationId { get; init; }
+    public CollectionId CollectionId { get; init; }
 }
 
 public record RemoveSeenCardFromExplorationRequest
 {
-    public Guid ExplorationId { get; init; }
-    public Guid CardId { get; init; }
+    public ExplorationId ExplorationId { get; init; }
+    public CollectionId CardId { get; init; }
 }
 
 public sealed class PatchExplorationRequest

@@ -8,7 +8,7 @@ using SetExplorer.Data.Cards;
 
 namespace SetExplorer.Endpoints.Explorations;
 
-public class AddSeenCardToExplorationEndpoint(ApplicationDbContext db) : FastEndpoints.Endpoint<AddSeenCardToExplorationRequest>
+internal class AddSeenCardToExplorationEndpoint(ExplorationService explorationService) : FastEndpoints.Endpoint<AddSeenCardToExplorationRequest>
 {
     public override void Configure()
     {
@@ -18,31 +18,7 @@ public class AddSeenCardToExplorationEndpoint(ApplicationDbContext db) : FastEnd
     public override async Task HandleAsync(AddSeenCardToExplorationRequest req, CancellationToken ct)
     {
         var userId = this.GetUserId();
-        var expId = ExplorationId.From(req.ExplorationId);
-        var scryId = ScryfallCardId.From(req.CardId);
-
-        var exploration = await db.Users
-            .Where(u => u.Id == userId)
-            .SelectMany(u => u.Explorations)
-            .Include(e => e.SeenCards)
-            .FirstOrDefaultAsync(e => e.Id == expId, ct);
-
-        if (exploration == null)
-        {
-            await Send.NotFoundAsync(ct);
-            return;
-        }
-
-        if (exploration.SeenCards.All(c => c.Id != scryId))
-        {
-            var card = await db.Set<Card>().FindAsync([scryId], ct);
-            if (card == null)
-            {
-                card = new Card { Id = scryId };
-                db.Set<Card>().Add(card);
-            }
-            exploration.SeenCards.Add(card);
-            await db.SaveChangesAsync(ct);
-        }
+        var result = await explorationService.AddSeenCardAsync(userId, req, ct);
+        await result.Match(x => Send.OkAsync(x, ct), x => Send.NotFoundAsync(ct));
     }
 }
