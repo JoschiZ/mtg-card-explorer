@@ -33,11 +33,9 @@ internal sealed class ExplorationService
             query = query.Where(c => c.Name.Contains(request.Name));
         }
 
-        var explorations = await query
-            .Include(e => e.SeenCards)
-            .Include(e => e.CardCollections)
-            .ToListAsync(cancellationToken);
-        return explorations.Select(MapToDto).ToList();
+        return await query
+            .ProjectToDto()
+            .ToListAsync(cancellationToken: cancellationToken);
     }
 
     public async Task<OneOf<ExplorationDto, NotFound>> CreateAsync(UserId userId, CreateExplorationRequest request,
@@ -60,7 +58,7 @@ internal sealed class ExplorationService
         userEntity.Explorations.Add(exploration);
         await _db.SaveChangesAsync(cancellationToken);
 
-        return MapToDto(exploration);
+        return exploration.MapToDto();
     }
 
     public async Task<OneOf<Success, NotFound>> UpdateAsync(UserId userId, PatchExplorationRequest request,
@@ -196,8 +194,11 @@ internal sealed class ExplorationService
 
         return new Success();
     }
+}
 
-    private static ExplorationDto MapToDto(Exploration exploration)
+public static class ExplorationExtensions
+{
+    public static ExplorationDto MapToDto(this Exploration exploration)
     {
         return new ExplorationDto
         {
@@ -216,4 +217,23 @@ internal sealed class ExplorationService
                 }))
         };
     }
+
+    public static IQueryable<ExplorationDto> ProjectToDto(this IQueryable<Exploration> queryable) => queryable
+        .Select(exploration => new ExplorationDto
+        {
+            Id = exploration.Id,
+            Name = exploration.Name,
+            SearchString = exploration.SearchString,
+            SeenCards = new ObservableCollection<ScryfallCardId>(exploration.SeenCards.Select(seenCard => seenCard.Id)
+                .ToList()),
+            UserId = exploration.UserId,
+            CardCollections = new ObservableCollection<CardCollectionDto>(exploration.CardCollections.Select(c =>
+                new CardCollectionDto
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    UserId = c.UserId,
+                    Cards = new ObservableCollection<ScryfallCardId>(c.Cards.Select(card => card.Id))
+                }))
+        });
 }

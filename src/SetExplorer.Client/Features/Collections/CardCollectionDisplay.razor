@@ -1,4 +1,5 @@
 @using System.Collections.Specialized
+@using SetExplorer.Client.Core
 @using SetExplorer.Client.Features.Cards
 @inject ICollectionsClient CollectionsClient
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -59,14 +60,7 @@
     [Parameter]
     public RenderFragment<CardCollectionDisplay>? ToolBarContent { get; set; }
 
-    private bool _isAuthenticated;
-    protected override async Task OnInitializedAsync()
-    {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        _isAuthenticated = authState.User.Identity?.IsAuthenticated == true;
-    }
-
-    protected override void OnParametersSet()
+    protected override void OnInitialized()
     {
         Collection.Cards.CollectionChanged += Collection_CollectionChanged;
         base.OnParametersSet();
@@ -93,7 +87,7 @@
 
     private async Task OnCardAddedAsync(ScryfallCardId card)
     {
-        if (!_isAuthenticated)
+        if (!await AuthenticationStateProvider.IsAuthenticatedAsync())
         {
             return;
         }
@@ -108,7 +102,7 @@
 
     private async Task OnCardRemovedAsync(ScryfallCardId card)
     {
-        if (!_isAuthenticated)
+        if (!await AuthenticationStateProvider.IsAuthenticatedAsync())
         {
             return;
         }

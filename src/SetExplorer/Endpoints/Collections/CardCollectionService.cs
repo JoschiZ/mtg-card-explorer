@@ -31,11 +31,14 @@ internal class CardCollectionService(ApplicationDbContext db)
             return new Success();
         }
         
-        var card = await db.Set<Card>().FindAsync([request.CardId], ct);
+        var card = await db
+            .Cards
+            .Where(x => x.Id == request.CardId)
+            .FirstOrDefaultAsync(ct);
         if (card == null)
         {
             card = new Card { Id = request.CardId };
-            db.Set<Card>().Add(card);
+            db.Cards.Add(card);
         }
         collection.Cards.Add(card);
         await db.SaveChangesAsync(ct);

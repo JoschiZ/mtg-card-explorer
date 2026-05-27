@@ -2,6 +2,7 @@
 @using SetExplorer.Client.Core.Scryfall.Models
 @inject ScryfallSearchClient SearchClient
 @inject ILogger<Home> Logger
+@inject ISnackbar Snackbar
 <MudCarousel TData="ScryfallCard" Style="height: 100%; width: 100%; display: flex; align-content: center" ShowArrows="true" ShowBullets="false" SelectedIndex="_selectedIndex" SelectedIndexChanged="@SelectedIndexChangedAsync" AutoCycle="false">
     <ChildContent>
         @foreach (var card in _cards)
@@ -14,18 +15,28 @@
     <PreviousButtonTemplate>
         @if (_selectedIndex != 0)
         {
-            <div Class="mud-button-root mud-icon-button mud-icon-button-color-inherit mud-ripple mud-ripple-icon">
-                <span class="mud-icon-button-label">
-                    <MudIcon Class="mud-ripple mud-ripple-icon mud-icon-button-size-medium" Icon="@Icons.Material.Filled.SkipPrevious" Color="@Color.Inherit"/>
-                </span>
-            </div>    
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                <div Class="mud-button-root mud-icon-button mud-icon-button-color-inherit mud-ripple mud-ripple-icon">
+                    <span class="mud-icon-button-label">
+                        <MudIcon Class="mud-ripple mud-ripple-icon mud-icon-button-size-medium" Icon="@Icons.Material.Filled.SkipPrevious" Color="@Color.Inherit"/>
+                    </span>
+                </div>
+            </div>
         }
     </PreviousButtonTemplate>
     <NextButtonTemplate>
-        <div Class="mud-button-root mud-icon-button mud-icon-button-color-inherit mud-ripple mud-ripple-icon">
-            <span class="mud-icon-button-label">
-                <MudIcon Class="mud-ripple mud-ripple-icon mud-icon-button-size-medium" Icon="@Icons.Material.Filled.SkipNext" Color="@Color.Inherit" />
-            </span>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+            <div Class="mud-button-root mud-icon-button mud-icon-button-color-inherit mud-ripple mud-ripple-icon">
+                <span class="mud-icon-button-label">
+                    <MudIcon Class="mud-ripple mud-ripple-icon mud-icon-button-size-medium" Icon="@Icons.Material.Filled.SkipNext" Color="@Color.Inherit" />
+                </span>
+            </div>
+            @if (SelectedCard is not null && SeenCards.Contains(SelectedCard.Id))
+            {
+                <MudTooltip Text="Skip to next unseen card">
+                    <MudIconButton Icon="@Icons.Material.Filled.Visibility" Color="Color.Inherit" OnClick="@SkipToNextUnseenAsync" Size="Size.Small"/>
+                </MudTooltip>
+            } 
         </div>
     </NextButtonTemplate>
 </MudCarousel>
@@ -33,7 +44,7 @@
 @code {
     
     
-    private List<ScryfallCard> _cards = [];
+    private readonly List<ScryfallCard> _cards = [];
     private IAsyncEnumerator<ScryfallCard>? _currentSearchIterator;
     private int _selectedIndex;
 
@@ -66,7 +77,8 @@
         
         _currentSearchIterator = SearchClient.GetAllAsync(SearchString).GetAsyncEnumerator();
         _cards.Clear();
-        await LoadNextCardsAsync(20);
+        _selectedIndex = 0;
+        await LoadNextCardsAsync();
         if (_cards.Count > 0)
         {
             SelectedCard = _cards[_selectedIndex];
@@ -80,16 +92,16 @@
     /// Thus this is how much we can simply load without additional IO calls
     /// </summary>
     private const int ScryfallSearchPageSize = 175;
-    private async Task LoadNextCardsAsync(int entries = ScryfallSearchPageSize)
+    private async Task<bool> LoadNextCardsAsync(int entries = ScryfallSearchPageSize)
     {
         if (_currentSearchIterator is null)
         {
-            return;
+            return false;
         }
 
         if (_currentlyLoadingNewCards)
         {
-            return;
+            return true;
         }
         Logger.LogDebug("Loading next cards {amount} ...", entries);
         _currentlyLoadingNewCards = true;
@@ -100,22 +112,39 @@
             itemsTaken++;
         }
         _currentlyLoadingNewCards = false;
+        return itemsTaken > 0;
     }
 
     private bool _currentlyLoadingNewCards;
+
+    private async Task SkipToNextUnseenAsync()
+    {
+        var nextUnseenCardIndex = -1;
+        
+        while (nextUnseenCardIndex == -1)
+        {
+            nextUnseenCardIndex = _cards.FindIndex(x => !SeenCards.Contains(x.Id));
+            if (nextUnseenCardIndex == -1)
+            {
+                var newCardsLoaded = await LoadNextCardsAsync();
+                if (!newCardsLoaded)
+                {
+                    Snackbar.Add("No unseen cards left", Severity.Info);
+                    break;
+                }
+                continue;
+            }
+            await SelectedIndexChangedAsync(nextUnseenCardIndex);
+        }
+    }
+
     private async Task SelectedIndexChangedAsync(int newIndex)
     {
-        if (newIndex > 1 && _selectedIndex == 0)
+        if (newIndex < 0 || newIndex >= _cards.Count || newIndex == _selectedIndex)
         {
             return;
         }
-        
-        if (newIndex == _cards.Count - 1)
-        {
-            await LoadNextCardsAsync();
-            return;
-        }
-        
+
         var newCard = _cards[newIndex];
         _selectedIndex = newIndex;
         SelectedCard = newCard;

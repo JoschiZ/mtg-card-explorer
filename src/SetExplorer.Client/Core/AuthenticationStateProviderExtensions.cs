@@ -12,6 +12,8 @@ public static class AuthenticationStateProviderExtensions
             var state = await authenticationStateProvider.GetAuthenticationStateAsync();
             return UserId.Parse(state.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new UnauthorizedAccessException());
         }
+        
+        public async Task<bool> IsAuthenticatedAsync() => (await authenticationStateProvider.GetAuthenticationStateAsync()).User.Identity?.IsAuthenticated == true;
     }
     
 }

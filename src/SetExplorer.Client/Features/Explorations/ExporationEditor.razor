@@ -65,16 +65,8 @@
     public required ExplorationDto Exploration { get; set; }
     
     private ScryfallCard? _selectedCard;
-    
-    private bool _isAuthenticated;
 
-    protected override async Task OnInitializedAsync()
-    {
-        var state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        _isAuthenticated = state.User.Identity?.IsAuthenticated == true;
-    }
-
-    protected override void OnParametersSet()
+    protected override void OnInitialized()
     {
         Exploration.SeenCards.CollectionChanged += OnSeenCardsChanged;
         Exploration.CardCollections.CollectionChanged += OnCardCollectionsChanged;
@@ -101,7 +93,7 @@
 
     private async Task OnCollectionRemovedAsync(CardCollectionDto collection)
     {
-        if (!_isAuthenticated)
+        if (!await AuthenticationStateProvider.IsAuthenticatedAsync())
         {
             return;
         }
@@ -117,7 +109,7 @@
 
     private async Task OnCollectionAddedAsync(CardCollectionDto collection)
     {
-        if (!_isAuthenticated)
+        if (!await AuthenticationStateProvider.IsAuthenticatedAsync())
         {
             return;
         }
@@ -152,11 +144,11 @@
 
     private async Task OnSeenCardAddedAsync(ScryfallCardId card)
     {
-        if (!_isAuthenticated)
+        if (!await AuthenticationStateProvider.IsAuthenticatedAsync())
         {
             return;
         }
-
+        
         var request = new AddSeenCardToExplorationRequest
         {
             ExplorationId = Exploration.Id,
@@ -168,7 +160,7 @@
 
     private async Task OnSeenCardRemovedAsync(ScryfallCardId card)
     {
-        if (!_isAuthenticated)
+        if (!await AuthenticationStateProvider.IsAuthenticatedAsync())
         {
             return;
         }
