@@ -1,7 +1,5 @@
-using SetExplorer.Client.Features.Cards;
+using FastEndpoints;
 using SetExplorer.Client.Features.Collections;
-using CollectionId = SetExplorer.Client.Features.Collections.CollectionId;
-
 
 namespace SetExplorer.Endpoints.Collections;
 
@@ -17,6 +15,7 @@ internal class AddCardToCollectionEndpoint : FastEndpoints.Endpoint<AddCardToCol
     public override void Configure()
     {
         Post("/collections/{collectionId:guid}/cards/{cardId:guid}");
+        Description(x => x.Accepts<AddCardToCollectionRequest>());
     }
 
     public override async Task HandleAsync(AddCardToCollectionRequest req, CancellationToken ct)

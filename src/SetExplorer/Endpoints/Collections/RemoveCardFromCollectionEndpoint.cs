@@ -1,14 +1,11 @@
-using Microsoft.EntityFrameworkCore;
-using SetExplorer.Client.Core.Http;
-using SetExplorer.Client.Features.Cards;
-using SetExplorer.Client.Features.Collections;
-using SetExplorer.Data;
-using CollectionId = SetExplorer.Client.Features.Collections.CollectionId;
 
+
+using FastEndpoints;
+using SetExplorer.Client.Features.Collections;
 
 namespace SetExplorer.Endpoints.Collections;
 
-internal class RemoveCardFromCollectionEndpoint : FastEndpoints.Endpoint<RemoveCardFromCollectionRequest>
+internal class RemoveCardFromCollectionEndpoint : Endpoint<RemoveCardFromCollectionRequest>
 {
     private readonly CardCollectionService _cardCollectionService;
 
@@ -20,6 +17,7 @@ internal class RemoveCardFromCollectionEndpoint : FastEndpoints.Endpoint<RemoveC
     public override void Configure()
     {
         Delete("/collections/{collectionId:guid}/cards/{cardId:guid}");
+        Description(x => x.Accepts<RemoveCardFromCollectionRequest>());
     }
 
     public override async Task HandleAsync(RemoveCardFromCollectionRequest req, CancellationToken ct)

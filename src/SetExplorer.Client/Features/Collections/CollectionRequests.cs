@@ -3,24 +3,24 @@ using SetExplorer.Client.Features.Cards;
 
 namespace SetExplorer.Client.Features.Collections;
 
-public record AddCardToCollectionRequest
+public class AddCardToCollectionRequest
 {
     public required CollectionId CollectionId { get; init; }
     public required ScryfallCardId CardId { get; init; }
 }
 
-public record CreateCollectionRequest
+public class CreateCollectionRequest
 {
     public required string Name { get; set; }
 }
 
-public record GetCollectionsRequest
+public class GetCollectionsRequest
 {
     public string? Name { get; set; }
 }
 
-public record RemoveCardFromCollectionRequest
+public class RemoveCardFromCollectionRequest
 {
-    public CollectionId CollectionId { get; init; }
-    public ScryfallCardId CardId { get; init; }
+    public required CollectionId CollectionId { get; init; }
+    public required ScryfallCardId CardId { get; init; }
 }

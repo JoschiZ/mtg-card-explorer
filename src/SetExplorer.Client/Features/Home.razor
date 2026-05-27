@@ -155,10 +155,11 @@ else
                 // Guest exploration
                 _currentExploration = new ExplorationDto
                 {
+                    Id = ExplorationId.From(Guid.Empty),
                     Name = _newName,
                     SearchString = _newSearchString,
                     SeenCards = [],
-                    UserId = UserId.Parse(Guid.Empty.ToString()),
+                    UserId = UserId.From(Guid.Empty),
                     CardCollections = []
                 };
             }

@@ -3,39 +3,39 @@ using SetExplorer.Client.Features.Collections;
 
 namespace SetExplorer.Client.Features.Explorations;
 
-public record AddCollectionToExplorationRequest
+public class AddCollectionToExplorationRequest
 {
-    public ExplorationId ExplorationId { get; init; }
-    public CollectionId CollectionId { get; init; }
+    public required ExplorationId ExplorationId { get; init; }
+    public required CollectionId CollectionId { get; init; }
 }
 
-public record AddSeenCardToExplorationRequest
+public class AddSeenCardToExplorationRequest
 {
-    public ExplorationId ExplorationId { get; init; }
-    public ScryfallCardId CardId { get; init; }
+    public required ExplorationId ExplorationId { get; init; }
+    public required ScryfallCardId CardId { get; init; }
 }
 
-public record CreateExplorationRequest
+public class CreateExplorationRequest
 {
     public required string Name { get; set; }
     public required string SearchString { get; set; }
 }
 
-public record GetExplorationsRequest
+public class GetExplorationsRequest
 {
     public string? Name { get; set; }
 }
 
-public record RemoveCollectionFromExplorationRequest
+public class RemoveCollectionFromExplorationRequest
 {
-    public ExplorationId ExplorationId { get; init; }
-    public CollectionId CollectionId { get; init; }
+    public required ExplorationId ExplorationId { get; init; }
+    public required CollectionId CollectionId { get; init; }
 }
 
-public record RemoveSeenCardFromExplorationRequest
+public class RemoveSeenCardFromExplorationRequest
 {
-    public ExplorationId ExplorationId { get; init; }
-    public CollectionId CardId { get; init; }
+    public required ExplorationId ExplorationId { get; init; }
+    public required ScryfallCardId CardId { get; init; }
 }
 
 public sealed class PatchExplorationRequest

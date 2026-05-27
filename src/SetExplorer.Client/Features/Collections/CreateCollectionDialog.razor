@@ -1,4 +1,4 @@
-@using SetExplorer.Client.Core.Http
+@using SetExplorer.Client.Core
 @inject ICollectionsClient CollectionsClient
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
@@ -31,9 +31,9 @@
             var localCollection = new CardCollectionDto
             {
                 Name = _request.Name,
-                Id = default,
+                Id = CollectionId.From(Guid.Empty),
                 Cards = [],
-                UserId = default
+                UserId = UserId.From(Guid.Empty)
             };
             MudDialog.Close(DialogResult.Ok(localCollection));
             return;

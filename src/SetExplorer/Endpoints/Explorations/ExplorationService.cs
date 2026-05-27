@@ -187,8 +187,7 @@ internal sealed class ExplorationService
             return new NotFound();
         }
 
-        var scryId = ScryfallCardId.From(request.CardId.Value);
-        var card = exploration.SeenCards.FirstOrDefault(c => c.Id == scryId);
+        var card = exploration.SeenCards.FirstOrDefault(c => c.Id == request.CardId);
         if (card != null)
         {
             exploration.SeenCards.Remove(card);
@@ -202,6 +201,7 @@ internal sealed class ExplorationService
     {
         return new ExplorationDto
         {
+            Id = exploration.Id,
             Name = exploration.Name,
             SearchString = exploration.SearchString,
             UserId = exploration.UserId,

@@ -1,18 +1,15 @@
-using Microsoft.EntityFrameworkCore;
-
-
 using SetExplorer.Client.Features.Explorations;
-using SetExplorer.Data;
-using CollectionId = SetExplorer.Client.Features.Collections.CollectionId;
+using FastEndpoints;
 
 
 namespace SetExplorer.Endpoints.Explorations;
 
-internal class RemoveCollectionFromExplorationEndpoint(ExplorationService explorationService) : FastEndpoints.Endpoint<RemoveCollectionFromExplorationRequest>
+internal class RemoveCollectionFromExplorationEndpoint(ExplorationService explorationService) : Endpoint<RemoveCollectionFromExplorationRequest>
 {
     public override void Configure()
     {
         Delete("/explorations/{explorationId:guid}/collections/{collectionId:guid}");
+        Description(x => x.Accepts<RemoveCollectionFromExplorationRequest>());
     }
 
     public override async Task HandleAsync(RemoveCollectionFromExplorationRequest req, CancellationToken ct)

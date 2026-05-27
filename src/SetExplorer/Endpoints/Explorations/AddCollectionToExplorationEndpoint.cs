@@ -1,15 +1,16 @@
-using Microsoft.EntityFrameworkCore;
-using SetExplorer.Client.Features.Collections;
+
+using FastEndpoints;
 using SetExplorer.Client.Features.Explorations;
-using SetExplorer.Data;
 
 namespace SetExplorer.Endpoints.Explorations;
 
-internal class AddCollectionToExplorationEndpoint(ExplorationService explorationService) : FastEndpoints.Endpoint<AddCollectionToExplorationRequest>
+internal class AddCollectionToExplorationEndpoint(ExplorationService explorationService) : Endpoint<AddCollectionToExplorationRequest>
 {
     public override void Configure()
     {
         Post("/explorations/{explorationId:guid}/collections/{collectionId:guid}");
+        
+        Description(x => x.Accepts<AddCollectionToExplorationRequest>());
     }
 
     public override async Task HandleAsync(AddCollectionToExplorationRequest req, CancellationToken ct)

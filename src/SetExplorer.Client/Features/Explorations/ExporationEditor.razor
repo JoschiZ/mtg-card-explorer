@@ -1,4 +1,3 @@
-
 @using System.Collections.Specialized
 @using SetExplorer.Client.Core
 @using SetExplorer.Client.Core.Scryfall.Models
@@ -7,6 +6,8 @@
 @implements IDisposable
 @inject ILogger<Home> Logger
 @inject IDialogService DialogService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IExplorationsClient ExplorationsClient
 
 
 
@@ -60,11 +61,18 @@
 
 @code
 {
-    
     [Parameter, EditorRequired] 
     public required ExplorationDto Exploration { get; set; }
     
     private ScryfallCard? _selectedCard;
+    
+    private bool _isAuthenticated;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        _isAuthenticated = state.User.Identity?.IsAuthenticated == true;
+    }
 
     protected override void OnParametersSet()
     {
@@ -93,13 +101,33 @@
 
     private async Task OnCollectionRemovedAsync(CardCollectionDto collection)
     {
-        // TODO: Persist to DB if the user is logged in
+        if (!_isAuthenticated)
+        {
+            return;
+        }
+
+        var request = new RemoveCollectionFromExplorationRequest
+        {
+            ExplorationId = Exploration.Id,
+            CollectionId = collection.Id
+        };
+        await ExplorationsClient.RemoveCollectionFromExplorationAsync(request);
         Logger.LogDebug("Remove collection {collection}", collection.Id);
     }
 
     private async Task OnCollectionAddedAsync(CardCollectionDto collection)
     {
-        // TODO: Persist to DB if the user is logged in
+        if (!_isAuthenticated)
+        {
+            return;
+        }
+
+        var request = new AddCollectionToExplorationRequest
+        {
+            ExplorationId = Exploration.Id,
+            CollectionId = collection.Id
+        };
+        await ExplorationsClient.AddCollectionToExplorationAsync(request);
         Logger.LogDebug("Add collection {collection}", collection.Id);
     }
 
@@ -124,13 +152,34 @@
 
     private async Task OnSeenCardAddedAsync(ScryfallCardId card)
     {
-        // TODO: Persist to DB if the user is logged in
+        if (!_isAuthenticated)
+        {
+            return;
+        }
+
+        var request = new AddSeenCardToExplorationRequest
+        {
+            ExplorationId = Exploration.Id,
+            CardId = card
+        };
+        await ExplorationsClient.AddSeenCardToExplorationAsync(request);
         Logger.LogDebug("Add seen card {card}", card);
     }
 
     private async Task OnSeenCardRemovedAsync(ScryfallCardId card)
     {
-        // TODO: Persist to DB if the user is logged in
+        if (!_isAuthenticated)
+        {
+            return;
+        }
+
+        var request = new RemoveSeenCardFromExplorationRequest
+        {
+            ExplorationId = Exploration.Id,
+            CardId = card
+        };
+        await ExplorationsClient.RemoveSeenCardFromExplorationAsync(request);
+        
         Logger.LogDebug("Remove seen card {card}", card);
     }
 

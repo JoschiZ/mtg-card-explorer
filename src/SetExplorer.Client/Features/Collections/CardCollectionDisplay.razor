@@ -1,6 +1,8 @@
 @using System.Collections.Specialized
 @using SetExplorer.Client.Features.Cards
-@inject ISnackbar Snackbar
+@inject ICollectionsClient CollectionsClient
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
 @implements IDisposable
 <MudCard Outlined Class="@($"h-100 {Class}")">
     <MudCardHeader>
@@ -57,6 +59,13 @@
     [Parameter]
     public RenderFragment<CardCollectionDisplay>? ToolBarContent { get; set; }
 
+    private bool _isAuthenticated;
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        _isAuthenticated = authState.User.Identity?.IsAuthenticated == true;
+    }
+
     protected override void OnParametersSet()
     {
         Collection.Cards.CollectionChanged += Collection_CollectionChanged;
@@ -84,12 +93,32 @@
 
     private async Task OnCardAddedAsync(ScryfallCardId card)
     {
-        Snackbar.Add($"Added: {card}");
+        if (!_isAuthenticated)
+        {
+            return;
+        }
+
+        var request = new AddCardToCollectionRequest
+        {
+            CollectionId = Collection.Id,
+            CardId = card
+        };
+        await CollectionsClient.AddCardToCollectionAsync(request);
     }
 
     private async Task OnCardRemovedAsync(ScryfallCardId card)
     {
-        Snackbar.Add($"Removed: {card}");
+        if (!_isAuthenticated)
+        {
+            return;
+        }
+
+        var request = new RemoveCardFromCollectionRequest
+        {
+            CollectionId = Collection.Id,
+            CardId = card
+        };
+        await CollectionsClient.RemoveCardFromCollectionAsync(request);
     }
     
     public Task RemoveCardAsync(ScryfallCardId card)

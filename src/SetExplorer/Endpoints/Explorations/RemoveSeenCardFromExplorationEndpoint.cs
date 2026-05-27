@@ -1,17 +1,15 @@
-using Microsoft.EntityFrameworkCore;
-using SetExplorer.Client.Features.Cards;
+using FastEndpoints;
 using SetExplorer.Client.Features.Explorations;
-using SetExplorer.Data;
-
 
 
 namespace SetExplorer.Endpoints.Explorations;
 
-internal class RemoveSeenCardFromExplorationEndpoint(ExplorationService explorationService) : FastEndpoints.Endpoint<RemoveSeenCardFromExplorationRequest>
+internal class RemoveSeenCardFromExplorationEndpoint(ExplorationService explorationService) : Endpoint<RemoveSeenCardFromExplorationRequest>
 {
     public override void Configure()
     {
         Delete("/explorations/{explorationId:guid}/seen-cards/{cardId:guid}");
+        Description(x => x.Accepts<RemoveSeenCardFromExplorationRequest>());
     }
 
     public override async Task HandleAsync(RemoveSeenCardFromExplorationRequest req, CancellationToken ct)

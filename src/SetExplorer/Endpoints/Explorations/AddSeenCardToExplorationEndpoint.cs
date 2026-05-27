@@ -1,18 +1,16 @@
-using Microsoft.EntityFrameworkCore;
-using SetExplorer.Client.Features.Cards;
+using FastEndpoints;
 using SetExplorer.Client.Features.Explorations;
-using SetExplorer.Data;
-using SetExplorer.Data.Cards;
-
 
 
 namespace SetExplorer.Endpoints.Explorations;
 
-internal class AddSeenCardToExplorationEndpoint(ExplorationService explorationService) : FastEndpoints.Endpoint<AddSeenCardToExplorationRequest>
+internal class AddSeenCardToExplorationEndpoint(ExplorationService explorationService) : Endpoint<AddSeenCardToExplorationRequest>
 {
     public override void Configure()
     {
         Post("/explorations/{explorationId:guid}/seen-cards/{cardId:guid}");
+        
+        Description(x => x.Accepts<AddSeenCardToExplorationRequest>());
     }
 
     public override async Task HandleAsync(AddSeenCardToExplorationRequest req, CancellationToken ct)
