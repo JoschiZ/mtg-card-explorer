@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using OneOf;
 using OneOf.Types;
 using SetExplorer.Client.Core;
-using SetExplorer.Client.Features.Cards;
 using SetExplorer.Client.Features.Collections;
 using SetExplorer.Data;
 using SetExplorer.Data.Cards;

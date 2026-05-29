@@ -7,7 +7,7 @@ using SetExplorer.Data.Explorations;
 
 namespace SetExplorer.Endpoints.Explorations;
 
-internal class GetExplorationsEndpoint(ExplorationService explorationService) : FastEndpoints.Endpoint<GetExplorationsRequest, List<ExplorationDto>>
+internal class GetExplorationsEndpoint(ExplorationService explorationService) : FastEndpoints.Endpoint<GetExplorationsRequest, List<ExplorationSummaryDto>>
 {
     public override void Configure()
     {

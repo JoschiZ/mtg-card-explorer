@@ -21,7 +21,7 @@ internal sealed class ExplorationService
         _db = db;
     }
 
-    public async Task<List<ExplorationDto>> GetAsync(UserId userId, GetExplorationsRequest request,
+    public async Task<List<ExplorationSummaryDto>> GetAsync(UserId userId, GetExplorationsRequest request,
         CancellationToken cancellationToken)
     {
         var query = _db.Users
@@ -34,8 +34,27 @@ internal sealed class ExplorationService
         }
 
         return await query
-            .ProjectToDto()
+            .ProjectToSummaryDto()
             .ToListAsync(cancellationToken: cancellationToken);
+    }
+
+    public async Task<OneOf<ExplorationDto, NotFound>> GetByIdAsync(UserId userId, ExplorationId explorationId,
+        CancellationToken cancellationToken)
+    {
+        var exploration = await _db.Users
+            .Where(u => u.Id == userId)
+            .SelectMany(u => u.Explorations)
+            .Include(e => e.SeenCards)
+            .Include(e => e.CardCollections)
+            .ThenInclude(c => c.Cards)
+            .FirstOrDefaultAsync(e => e.Id == explorationId, cancellationToken);
+
+        if (exploration == null)
+        {
+            return new NotFound();
+        }
+
+        return exploration.MapToDto();
     }
 
     public async Task<OneOf<ExplorationDto, NotFound>> CreateAsync(UserId userId, CreateExplorationRequest request,
@@ -217,6 +236,15 @@ public static class ExplorationExtensions
                 }))
         };
     }
+
+    public static IQueryable<ExplorationSummaryDto> ProjectToSummaryDto(this IQueryable<Exploration> queryable) =>
+        queryable.Select(exploration => new ExplorationSummaryDto
+        {
+            Id = exploration.Id,
+            Name = exploration.Name,
+            SearchString = exploration.SearchString,
+            UserId = exploration.UserId,
+        });
 
     public static IQueryable<ExplorationDto> ProjectToDto(this IQueryable<Exploration> queryable) => queryable
         .Select(exploration => new ExplorationDto

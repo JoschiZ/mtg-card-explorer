@@ -11,11 +11,18 @@ internal class ServerExplorationsClient(
     AuthenticationStateProvider authenticationStateProvider)
     : IExplorationsClient
 {
-    public async Task<List<ExplorationDto>> GetExplorationsAsync(GetExplorationsRequest request,
+    public async Task<List<ExplorationSummaryDto>> GetExplorationsAsync(GetExplorationsRequest request,
         CancellationToken ct = default)
     {
         var userId = await authenticationStateProvider.GetUserIdAsync();
         return await explorationService.GetAsync(userId, request, ct);
+    }
+
+    public async Task<ExplorationDto?> GetExplorationByIdAsync(ExplorationId explorationId, CancellationToken ct = default)
+    {
+        var userId = await authenticationStateProvider.GetUserIdAsync();
+        var result = await explorationService.GetByIdAsync(userId, explorationId, ct);
+        return result.Match(ExplorationDto? (x) => x, _ => null);
     }
 
     public async Task<ExplorationDto?> CreateExplorationAsync(CreateExplorationRequest request,
