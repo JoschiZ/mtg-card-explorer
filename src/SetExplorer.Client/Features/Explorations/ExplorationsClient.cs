@@ -5,12 +5,18 @@ namespace SetExplorer.Client.Features.Explorations;
 
 public class ExplorationsClient(HttpClient httpClient) : IExplorationsClient
 {
-    public async Task<List<ExplorationDto>> GetExplorationsAsync(GetExplorationsRequest request, CancellationToken ct = default)
+    public async Task<List<ExplorationSummaryDto>> GetExplorationsAsync(GetExplorationsRequest request, CancellationToken ct = default)
     {
         var query = request.Name is not null ? $"?Name={Uri.EscapeDataString(request.Name)}" : string.Empty;
         
         var url = $"explorations{query}";
-        return await httpClient.GetFromJsonAsync<List<ExplorationDto>>(url, ct) ?? [];
+        return await httpClient.GetFromJsonAsync<List<ExplorationSummaryDto>>(url, ct) ?? [];
+    }
+
+    public async Task<ExplorationDto?> GetExplorationByIdAsync(ExplorationId explorationId, CancellationToken ct = default)
+    {
+        var url = $"explorations/{explorationId}";
+        return await httpClient.GetFromJsonAsync<ExplorationDto>(url, ct);
     }
 
     public async Task<ExplorationDto?> CreateExplorationAsync(CreateExplorationRequest request, CancellationToken ct = default)

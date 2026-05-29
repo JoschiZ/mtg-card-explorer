@@ -7,88 +7,77 @@
 @inject IExplorationsClient ExplorationsClient
 @inject AuthenticationStateProvider AuthStateProvider
 @inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
 
 <PageTitle>Home</PageTitle>
 
-@if (_currentExploration == null)
-{
-    <MudText Typo="Typo.h3" Class="mb-6">Card Explorer</MudText>
+<MudText Typo="Typo.h3" Class="mb-6">Card Explorer</MudText>
 
-    <AuthorizeView>
-        <Authorized>
-            <MudText Typo="Typo.h5" Class="mb-4">Resume Exploration</MudText>
-            <MudGrid Class="mb-8">
-                @if (_loading)
+<AuthorizeView>
+    <Authorized>
+        <MudText Typo="Typo.h5" Class="mb-4">Resume Exploration</MudText>
+        <MudGrid Class="mb-8">
+            @if (_loading)
+            {
+                <MudItem xs="12">
+                    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                </MudItem>
+            }
+            else if (_explorations.Any())
+            {
+                @foreach (var exploration in _explorations)
                 {
-                    <MudItem xs="12">
-                        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                    <MudItem xs="12" sm="6" md="4">
+                        <MudCard Elevation="2">
+                            <MudCardHeader>
+                                <CardHeaderContent>
+                                    <MudText Typo="Typo.h6">@exploration.Name</MudText>
+                                    <MudText Typo="Typo.body2">@exploration.SearchString</MudText>
+                                </CardHeaderContent>
+                            </MudCardHeader>
+                            <MudCardActions>
+                                <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="@(() => ResumeExploration(exploration))">Resume</MudButton>
+                            </MudCardActions>
+                        </MudCard>
                     </MudItem>
                 }
-                else if (_explorations.Any())
-                {
-                    @foreach (var exploration in _explorations)
-                    {
-                        <MudItem xs="12" sm="6" md="4">
-                            <MudCard Elevation="2">
-                                <MudCardHeader>
-                                    <CardHeaderContent>
-                                        <MudText Typo="Typo.h6">@exploration.Name</MudText>
-                                        <MudText Typo="Typo.body2">@exploration.SearchString</MudText>
-                                    </CardHeaderContent>
-                                </MudCardHeader>
-                                <MudCardActions>
-                                    <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="@(() => ResumeExploration(exploration))">Resume</MudButton>
-                                </MudCardActions>
-                            </MudCard>
-                        </MudItem>
-                    }
-                }
-                else
-                {
-                    <MudItem xs="12">
-                        <MudAlert Severity="Severity.Info">No explorations found. Start a new one below!</MudAlert>
-                    </MudItem>
-                }
-            </MudGrid>
-        </Authorized>
-        <NotAuthorized>
-            <MudAlert Severity="Severity.Info" Class="mb-8">
-                <MudLink Href="Account/Login">Log in</MudLink> to save your explorations and resume them later.
-            </MudAlert>
-        </NotAuthorized>
-    </AuthorizeView>
+            }
+            else
+            {
+                <MudItem xs="12">
+                    <MudAlert Severity="Severity.Info">No explorations found. Start a new one below!</MudAlert>
+                </MudItem>
+            }
+        </MudGrid>
+    </Authorized>
+    <NotAuthorized>
+        <MudAlert Severity="Severity.Info" Class="mb-8">
+            <MudLink Href="Account/Login">Log in</MudLink> to save your explorations and resume them later.
+        </MudAlert>
+    </NotAuthorized>
+</AuthorizeView>
 
-    <MudPaper Class="pa-6" Elevation="3">
-        <MudText Typo="Typo.h5" Class="mb-4">Start New Exploration</MudText>
-        <MudForm @ref="_form" @bind-IsValid="@_formValid">
-            <MudTextField T="string" Label="Exploration Name" @bind-Value="_newName" Required="true" RequiredError="Name is required!" />
-            <MudTextField T="string" Label="Search String (e.g., set:mid)" @bind-Value="_newSearchString" Required="true" RequiredError="Search string is required!" />
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-4" Disabled="@(!_formValid || _creating)" OnClick="StartNewExploration">
-                @if (_creating)
-                {
-                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
-                    <MudText Class="ms-2">Creating...</MudText>
-                }
-                else
-                {
-                    <MudText>Start Exploration</MudText>
-                }
-            </MudButton>
-        </MudForm>
-    </MudPaper>
-}
-else
-{
-    <div class="d-flex align-center mb-4">
-        <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" OnClick="BackToHome" />
-        <MudText Typo="Typo.h4" Class="ml-2">@_currentExploration.Name</MudText>
-    </div>
-    <ExporationEditor Exploration="_currentExploration" />
-}
+<MudPaper Class="pa-6" Elevation="3">
+    <MudText Typo="Typo.h5" Class="mb-4">Start New Exploration</MudText>
+    <MudForm @ref="_form" @bind-IsValid="@_formValid">
+        <MudTextField T="string" Label="Exploration Name" @bind-Value="_newName" Required="true" RequiredError="Name is required!" />
+        <MudTextField T="string" Label="Search String (e.g., set:mid)" @bind-Value="_newSearchString" Required="true" RequiredError="Search string is required!" />
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-4" Disabled="@(!_formValid || _creating)" OnClick="StartNewExploration">
+            @if (_creating)
+            {
+                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                <MudText Class="ms-2">Creating...</MudText>
+            }
+            else
+            {
+                <MudText>Start Exploration</MudText>
+            }
+        </MudButton>
+    </MudForm>
+</MudPaper>
 
 @code {
-    private List<ExplorationDto> _explorations = [];
-    private ExplorationDto? _currentExploration;
+    private List<ExplorationSummaryDto> _explorations = [];
     private bool _loading = true;
     private bool _creating;
     private bool _formValid;
@@ -119,9 +108,9 @@ else
         }
     }
 
-    private void ResumeExploration(ExplorationDto exploration)
+    private void ResumeExploration(ExplorationSummaryDto exploration)
     {
-        _currentExploration = exploration;
+        NavigationManager.NavigateTo($"/explorations/{exploration.Id}");
     }
 
     private async Task StartNewExploration()
@@ -143,7 +132,7 @@ else
                 var created = await ExplorationsClient.CreateExplorationAsync(request);
                 if (created != null)
                 {
-                    _currentExploration = created;
+                    NavigationManager.NavigateTo($"/explorations/{created.Id}");
                 }
                 else
                 {
@@ -153,15 +142,12 @@ else
             else
             {
                 // Guest exploration
-                _currentExploration = new ExplorationDto
+                var uri = NavigationManager.GetUriWithQueryParameters($"/explorations/{Guid.Empty}", new Dictionary<string, object?>
                 {
-                    Id = ExplorationId.From(Guid.Empty),
-                    Name = _newName,
-                    SearchString = _newSearchString,
-                    SeenCards = [],
-                    UserId = UserId.From(Guid.Empty),
-                    CardCollections = []
-                };
+                    ["name"] = _newName,
+                    ["search"] = _newSearchString
+                });
+                NavigationManager.NavigateTo(uri);
             }
         }
         catch (Exception)
@@ -172,13 +158,5 @@ else
         {
             _creating = false;
         }
-    }
-
-    private async Task BackToHome()
-    {
-        _currentExploration = null;
-        _newName = string.Empty;
-        _newSearchString = string.Empty;
-        await LoadExplorations();
     }
 }

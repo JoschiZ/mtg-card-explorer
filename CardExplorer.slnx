@@ -2,6 +2,7 @@
   <Folder Name="/project-files/">
     <File Path=".gitignore" />
     <File Path=".junie\guidelines.md" />
+    <File Path="docker\test-db\compose.yaml" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/SetExplorer.Client/SetExplorer.Client.csproj" />

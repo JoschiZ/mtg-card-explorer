@@ -13,6 +13,14 @@ public sealed class CardCollectionDto
     public required UserId UserId { get; init; }
 }
 
+public sealed class ExplorationSummaryDto
+{
+    public required ExplorationId Id { get; init; }
+    public required string Name { get; init; }
+    public required string SearchString  { get; set; }
+    public required UserId UserId { get; init; }
+}
+
 public sealed class ExplorationDto
 {
     public required ExplorationId Id { get; init; }

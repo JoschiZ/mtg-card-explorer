@@ -21,6 +21,11 @@ public class CreateExplorationRequest
     public required string SearchString { get; set; }
 }
 
+public class GetExplorationByIdRequest
+{
+    public required ExplorationId Id { get; init; }
+}
+
 public class GetExplorationsRequest
 {
     public string? Name { get; set; }
