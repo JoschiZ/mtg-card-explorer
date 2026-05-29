@@ -1,0 +1,1 @@
+docker build . --tag registry.joschiz.pro/set-explorer:latest --push -f src/SetExplorer/Dockerfile
