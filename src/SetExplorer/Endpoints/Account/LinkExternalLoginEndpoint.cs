@@ -15,7 +15,7 @@ public class LinkExternalLoginEndpoint(SignInManager<ApplicationUser> signInMana
 {
     public override void Configure()
     {
-        Post("/Account/Manage/LinkExternalLogin");
+        Post("Account/Manage/LinkExternalLogin");
         AllowFormData();
     }
 

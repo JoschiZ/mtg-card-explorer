@@ -9,9 +9,8 @@ public class PasskeyCreationOptionsEndpoint(SignInManager<ApplicationUser> signI
 {
     public override void Configure()
     {
-        Post("/Account/PasskeyCreationOptions");
-        // Antiforgery is typically handled globally or per endpoint in FastEndpoints.
-        // The original code had await antiforgery.ValidateRequestAsync(context);
+        Post("Account/PasskeyCreationOptions");
+        Description(x => x.ClearDefaultAccepts());
     }
 
     public override async Task HandleAsync(CancellationToken ct)

@@ -4,15 +4,16 @@ using SetExplorer.Data;
 
 namespace SetExplorer.Endpoints.Account;
 
-public record PasskeyRequestOptionsRequest(string? Username);
+public record PasskeyRequestOptionsRequest([property: QueryParam]string? Username);
 
 public class PasskeyRequestOptionsEndpoint(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager)
     : Endpoint<PasskeyRequestOptionsRequest>
 {
     public override void Configure()
     {
-        Post("/Account/PasskeyRequestOptions");
+        Post("Account/PasskeyRequestOptions");
         AllowAnonymous();
+        Description(x => x.Accepts<PasskeyRequestOptionsRequest>());
     }
 
     public override async Task HandleAsync(PasskeyRequestOptionsRequest req, CancellationToken ct)

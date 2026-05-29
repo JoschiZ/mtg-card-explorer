@@ -11,7 +11,7 @@ public class LogoutEndpoint(SignInManager<ApplicationUser> signInManager)
 {
     public override void Configure()
     {
-        Post("/Account/Logout");
+        Post("Account/Logout");
     }
 
     public override async Task HandleAsync(LogoutRequest req, CancellationToken ct)
