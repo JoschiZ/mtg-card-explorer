@@ -75,6 +75,7 @@ else
         catch (Exception)
         {
             Snackbar.Add("Failed to load exploration.", Severity.Error);
+            NavigationManager.NavigateTo("/");
         }
         finally
         {
