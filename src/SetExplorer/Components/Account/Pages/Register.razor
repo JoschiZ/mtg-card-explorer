@@ -17,6 +17,10 @@
 
 <MudText Typo="Typo.h3" GutterBottom="true">Register</MudText>
 
+<MudAlert Severity="Severity.Warning">
+    I'm not interested in collecting and storing your email address.
+    Because of that it is currently NOT possible to recover your account if it is lost.
+</MudAlert>
 <MudGrid>
     <MudItem md="6">
         <StatusMessage Message="@Message" />
@@ -61,8 +65,7 @@
 @code {
     private IEnumerable<IdentityError>? identityErrors;
 
-    [SupplyParameterFromForm]
-    private InputModel? Input { get; set; }
+    [SupplyParameterFromForm] private InputModel Input { get; set; } = null!;
 
     [SupplyParameterFromQuery]
     private string? ReturnUrl { get; set; }
