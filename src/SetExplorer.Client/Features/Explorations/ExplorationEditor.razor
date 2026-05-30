@@ -15,7 +15,7 @@
         <MudTextField Variant="Variant.Filled" FullWidth HelperText="Scryfall Search" Placeholder="set:mid" @bind-Value="@Exploration.SearchString"></MudTextField>
 </MudPaper>
 
-<MudPaper Outlined Style="height: 350px; display: flex; justify-content: center; align-content: center" Class="main-component">
+<MudPaper Outlined Style="min-height: 350px; display: flex; justify-content: center; align-content: center" Class="main-component carousel-container">
         <CardCarousel SearchString="@Exploration.SearchString" SelectedCard="_selectedCard" SelectedCardChanged="@OnSelectedCardChanged" SeenCards="Exploration.SeenCards"></CardCarousel>
 </MudPaper>
 
@@ -56,6 +56,14 @@
     }
     .collections-container {
         min-height: 400px;
+    }
+    .carousel-container {
+        height: 600px;
+    }
+    @@media (min-width: 960px) {
+        .carousel-container {
+            height: 350px;
+        }
     }
 </style>
 

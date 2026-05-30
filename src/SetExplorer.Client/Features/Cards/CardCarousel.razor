@@ -3,14 +3,14 @@
 @inject ScryfallSearchClient SearchClient
 @inject ILogger<Home> Logger
 @inject ISnackbar Snackbar
-<MudCarousel TData="ScryfallCard" Style="height: 100%; width: 100%; display: flex; align-content: center" ShowArrows="true" ShowBullets="false" SelectedIndex="_selectedIndex" SelectedIndexChanged="@SelectedIndexChangedAsync" AutoCycle="false">
+<MudCarousel TData="ScryfallCard" Style="height: 100%; width: 100%;" ShowArrows="true" ShowBullets="false" SelectedIndex="_selectedIndex" SelectedIndexChanged="@SelectedIndexChangedAsync" AutoCycle="false" EnableSwipeGesture="true">
     <ChildContent>
         @foreach (var card in _cards)
         {
-            <MudCarouselItem Style="padding-left: 5%; padding-right: 5%">
+            <MudCarouselItem Style="padding-left: 5%; padding-right: 5%; display: flex; align-items: center; justify-content: center;">
                 <CardDisplay Card="card" IsSeen="@SeenCards.Contains(card.Id)"/>
             </MudCarouselItem>
-        }    
+        }
     </ChildContent>
     <PreviousButtonTemplate>
         @if (_selectedIndex != 0)
