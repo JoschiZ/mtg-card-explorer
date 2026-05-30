@@ -15,8 +15,8 @@
 
 <MudGrid>
     <MudItem md="6">
-        <StatusMessage Message="@errorMessage" />
-        <EditForm EditContext="editContext" method="post" OnSubmit="LoginUser" FormName="login">
+        <StatusMessage Message="@_errorMessage" />
+        <EditForm EditContext="_editContext" method="post" OnSubmit="LoginUser" FormName="login">
             <DataAnnotationsValidator />
 
             <MudText GutterBottom="true" Typo="Typo.body1">Use a local account to log in.</MudText>
@@ -24,13 +24,13 @@
             <MudGrid>
                 <MudItem md="12">
                     <MudStaticTextField For="@(() => Input.UserName)" @bind-Value="Input.UserName"
-                        Label="Username" Placeholder="Richard Garfield"
-                        UserAttributes="@(new() { { "autocomplete", "username webauthn" }, { "aria-required", "true" } } )" />
+                                        Label="Username" Placeholder="Richard Garfield"
+                                        UserAttributes="@(new() { { "autocomplete", "username webauthn" }, { "aria-required", "true" } } )" />
                 </MudItem>
                 <MudItem md="12">
                     <MudStaticTextField For="@(() => Input.Password)" @bind-Value="Input.Password"
-                        Label="Password" InputType="InputType.Password" Placeholder="password"
-                        UserAttributes="@(new() { { "autocomplete", "current-password" }, { "aria-required", "true" } } )" />
+                                        Label="Password" InputType="InputType.Password" Placeholder="password"
+                                        UserAttributes="@(new() { { "autocomplete", "current-password" }, { "aria-required", "true" } } )" />
                 </MudItem>
                 <MudItem md="12">
                     <MudStaticCheckBox For="@(() => Input.RememberMe)" @bind-Value="Input.RememberMe">Remember me</MudStaticCheckBox>
@@ -55,16 +55,19 @@
             </MudItem>
         </MudGrid>
     </MudItem>
-    <MudItem md="6">
-        <MudText GutterBottom="true" Typo="Typo.body1">Use another service to log in.</MudText>
+    @if (false)
+    {
+        <MudItem md="6">
+            <MudText GutterBottom="true" Typo="Typo.body1">Use another service to log in.</MudText>
 
-        <ExternalLoginPicker />
-    </MudItem>
+            <ExternalLoginPicker />
+        </MudItem>
+    }
 </MudGrid>
 
 @code {
-    private string? errorMessage;
-    private EditContext editContext = default!;
+    private string? _errorMessage;
+    private EditContext _editContext = default!;
 
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
@@ -78,7 +81,7 @@
     protected override async Task OnInitializedAsync()
     {
         Input ??= new();
-        editContext = new EditContext(Input);
+        _editContext = new EditContext(Input);
 
         if (HttpMethods.IsGet(HttpContext.Request.Method))
         {
@@ -91,7 +94,7 @@
     {
         if (!string.IsNullOrEmpty(Input.Passkey?.Error))
         {
-            errorMessage = $"Error: {Input.Passkey.Error}";
+            _errorMessage = $"Error: {Input.Passkey.Error}";
             return;
         }
 
@@ -104,7 +107,7 @@
         else
         {
             // If doing a password sign-in, validate the form.
-            if (!editContext.Validate())
+            if (!_editContext.Validate())
             {
                 return;
             }
@@ -132,7 +135,7 @@
         }
         else
         {
-            errorMessage = "Error: Invalid login attempt.";
+            _errorMessage = "Error: Invalid login attempt.";
         }
     }
 
