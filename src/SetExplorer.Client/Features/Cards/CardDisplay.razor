@@ -7,29 +7,19 @@
     <div class="card-text-wrapper">
         @if (!Card.IsDoubleSided)
         {
-            <MudCard Elevation="0" Style="background: transparent;">
-                <MudCardHeader>
-                    <CardHeaderContent>
-                        <MudText Typo="Typo.h6">@Card.Name</MudText>
-                    </CardHeaderContent>
-                </MudCardHeader>
-                <MudCardContent>
-                    <MudText Typo="Typo.body1">@Card.OracleText</MudText>
-                </MudCardContent>
-            </MudCard>
+            <MudText Typo="Typo.h6">@Card.Name</MudText>
+            <MudText Typo="Typo.body1">@Card.OracleText</MudText>
             
         }
         else
         {
             <div>
                 <MudText Typo="Typo.h6">@Card.CardFaces[0].Name</MudText>
-                <MudSpacer/>
                 <MudText Typo="Typo.body1">@Card.CardFaces[0].OracleText</MudText>
             </div>
             <MudDivider DividerType="DividerType.FullWidth" Style="margin-top: 1rem; margin-bottom: 1rem"/>
             <div>
                 <MudText Typo="Typo.h6">@Card.CardFaces[1].Name</MudText>
-                <MudSpacer/>
                 <MudText Typo="Typo.body1">@Card.CardFaces[1].OracleText</MudText>
             </div>
         }
@@ -46,6 +36,8 @@
         height: 100%;
         width: 100%;
         gap: 0.5rem;
+        touch-action: pan-y;
+        overflow-y: hidden;
     }
 
     .card-image-wrapper {
@@ -55,13 +47,14 @@
     }
 
     .card-text-wrapper {
+        overflow-x: auto;
+        touch-action: auto;
+        overflow-y: auto;
         flex: 1 1 auto;
         min-width: 0;
         width: 100%;
         padding-top: 0.5rem;
         padding-bottom: 0.5rem;
-        overflow-y: auto;
-        touch-action: pan-y;
     }
 
     @@media (min-width: 960px) {
@@ -70,13 +63,13 @@
             align-items: center;
             justify-content: center;
             overflow-y: hidden;
+            touch-action: auto;
             gap: 1.5rem;
         }
         
         .card-text-wrapper {
             height: 100%;
             overflow-y: auto;
-            touch-action: auto;
         }
     }
 </style>
