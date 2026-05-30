@@ -2,7 +2,6 @@
 
 @using System.Buffers.Text
 @using System.ComponentModel.DataAnnotations
-@using Microsoft.AspNetCore.Identity
 @using SetExplorer.Data
 
 @inject UserManager<ApplicationUser> UserManager
@@ -13,7 +12,7 @@
 <EditForm Model="Input" OnValidSubmit="Rename" FormName="rename-passkey" method="post">
     <DataAnnotationsValidator />
 
-    @if (passkey?.Name is { } name)
+    @if (_passkey?.Name is { } name)
     {
         <MudText Typo="Typo.h6" GutterBottom="true">Enter a new name for your "@name" passkey</MudText>
     }
@@ -30,6 +29,7 @@
                                 @bind-Value="Input.Name"
                                 Label="Passkey name"
                                 Placeholder="My passkey"
+                                Required
                                 UserAttributes="@(new() { { "aria-required", "true" } })" />
         </MudItem>
         <MudItem md="12">
@@ -37,26 +37,26 @@
         </MudItem>
     </MudGrid>
 </EditForm>
-
 @code {
-    private ApplicationUser? user;
-    private UserPasskeyInfo? passkey;
+    private ApplicationUser? _user;
+    private UserPasskeyInfo? _passkey;
 
     [CascadingParameter]
-    private HttpContext HttpContext { get; set; } = default!;
+    private HttpContext HttpContext { get; set; } = null!;
 
     [Parameter]
     public string? Id { get; set; }
 
     [SupplyParameterFromForm]
-    private InputModel Input { get; set; } = default!;
+    private InputModel Input { get; set; } = null!;
 
     protected override async Task OnInitializedAsync()
     {
+        // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
         Input ??= new();
 
-        user = await UserManager.GetUserAsync(HttpContext.User);
-        if (user is null)
+        _user = await UserManager.GetUserAsync(HttpContext.User);
+        if (_user is null)
         {
             RedirectManager.RedirectToInvalidUser(UserManager, HttpContext);
             return;
@@ -73,26 +73,29 @@
             return;
         }
 
-        passkey = await UserManager.GetPasskeyAsync(user, credentialId);
-        if (passkey is null)
+        _passkey = await UserManager.GetPasskeyAsync(_user, credentialId);
+        if (_passkey is null)
         {
             RedirectManager.RedirectToWithStatus("Account/Manage/Passkeys", "Error: The specified passkey could not be found.", HttpContext);
             return;
         }
 
-        Input.Name = passkey.Name ?? string.Empty;
+        if (HttpMethods.IsGet(HttpContext.Request.Method))
+        {
+            Input.Name = _passkey.Name ?? string.Empty;
+        }
     }
 
     private async Task Rename()
     {
-        if (user is null || passkey is null)
+        if (_user is null || _passkey is null)
         {
             RedirectManager.RedirectToInvalidUser(UserManager, HttpContext);
             return;
         }
 
-        passkey.Name = Input.Name;
-        var result = await UserManager.AddOrUpdatePasskeyAsync(user, passkey);
+        _passkey.Name = Input.Name;
+        var result = await UserManager.AddOrUpdatePasskeyAsync(_user, _passkey);
         if (!result.Succeeded)
         {
             RedirectManager.RedirectToWithStatus("Account/Manage/Passkeys", "Error: The passkey could not be updated.", HttpContext);
