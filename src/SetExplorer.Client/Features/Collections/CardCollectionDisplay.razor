@@ -1,10 +1,17 @@
 @using System.Collections.Specialized
+@using System.Text
 @using SetExplorer.Client.Core
+@using SetExplorer.Client.Core.Scryfall
+@using SetExplorer.Client.Core.Scryfall.Models
 @using SetExplorer.Client.Features.Cards
 @inject ICollectionsClient CollectionsClient
 @inject AuthenticationStateProvider AuthenticationStateProvider
-
+@inject IJsApiService JsApiService
+@inject ISnackbar Snackbar
+@inject ScryfallSearchClient ScryfallSearchClient
 @implements IDisposable
+@inject IJSRuntime JsRuntime
+
 <MudCard Outlined Class="@($"h-100 {Class}")">
     <MudCardHeader>
         <CardHeaderContent>
@@ -12,6 +19,11 @@
         </CardHeaderContent>
         <CardHeaderActions>
             @ToolBarContent?.Invoke(this)
+            <MudMenu Variant="Variant.Outlined" Size="Size.Small" Label="Export">
+                <MudMenuItem OnClick="@ExportToArchidektAsync">Archidekt</MudMenuItem>
+                <MudMenuItem OnClick="@ExportToMoxfieldtAsync">Moxfield</MudMenuItem>
+                <MudMenuItem OnClick="@ExportToClipboardAsync">Clipboard</MudMenuItem>
+            </MudMenu>
         </CardHeaderActions>
     </MudCardHeader>
     <MudCardContent>
@@ -135,6 +147,53 @@
     public void Dispose()
     {
         Collection.Cards.CollectionChanged -= Collection_CollectionChanged;
+    }
+
+    private async Task ExportToClipboardAsync()
+    {
+        var sb = await GetCardNames();
+        await JsApiService.CopyToClipboardAsync(sb);
+        Snackbar.Add("Cards exported to clipboard", Severity.Success);
+    }
+
+    private async Task ExportToArchidektAsync()
+    {
+        var cardNames = await GetCardNames();
+        const string url = "https://archidekt.com/cardImport?c=";
+        var encodedCardNames = Uri.EscapeDataString(cardNames);
+        var urlWithCards = url + encodedCardNames;
+        await JsRuntime.InvokeVoidAsync("open", urlWithCards, "_blank");
+    }
+    
+    private async Task ExportToMoxfieldtAsync()
+    {
+        var cardNames = await GetCardNames();
+        const string url = "https://moxfield.com/import?c=";
+        var encodedCardNames = Uri.EscapeDataString(cardNames);
+        var urlWithCards = url + encodedCardNames;
+        await JsRuntime.InvokeVoidAsync("open", urlWithCards, "_blank");
+    }
+    
+
+    private async Task<string> GetCardNames()
+    {
+        return string.Join("\n", (await GetAllCardsAsync()).Select(c => c.Name));
+    }
+
+    private async Task<List<ScryfallCard>> GetAllCardsAsync()
+    {
+        var exportList = new List<ScryfallCard>(Collection.Cards.Count);
+        foreach (var cardId in Collection.Cards)
+        {
+            var card = await ScryfallSearchClient.GetCardAsync(cardId);
+            if (card is null)
+            {
+                Snackbar.Add($"Failed to export card {cardId}", Severity.Error);
+                continue;
+            }
+            exportList.Add(card);
+        }
+        return exportList;
     }
 
 }
