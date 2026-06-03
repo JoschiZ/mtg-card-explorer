@@ -21,7 +21,7 @@
             @ToolBarContent?.Invoke(this)
             <MudMenu Variant="Variant.Outlined" Size="Size.Small" Label="Export">
                 <MudMenuItem OnClick="@ExportToArchidektAsync">Archidekt</MudMenuItem>
-                <MudMenuItem OnClick="@ExportToMoxfieldtAsync">Moxfield</MudMenuItem>
+                <MudMenuItem OnClick="@ExportToMoxfieldAsync">Moxfield</MudMenuItem>
                 <MudMenuItem OnClick="@ExportToClipboardAsync">Clipboard</MudMenuItem>
             </MudMenu>
         </CardHeaderActions>
@@ -151,35 +151,30 @@
 
     private async Task ExportToClipboardAsync()
     {
-        var sb = await GetCardNames();
-        await JsApiService.CopyToClipboardAsync(sb);
+        var sb = await GetAllCardsAsync();
+        var exportString = string.Join("\n", sb.Select(c => c.Name));
+        await JsApiService.CopyToClipboardAsync(exportString);
         Snackbar.Add("Cards exported to clipboard", Severity.Success);
     }
 
     private async Task ExportToArchidektAsync()
     {
-        var cardNames = await GetCardNames();
+        var cards = await GetAllCardsAsync();
+        var cardNames = string.Join("%0A", cards.Select(c => c.Name));
         const string url = "https://archidekt.com/cardImport?c=";
-        var encodedCardNames = Uri.EscapeDataString(cardNames);
-        var urlWithCards = url + encodedCardNames;
+        var urlWithCards = url + cardNames;
         await JsRuntime.InvokeVoidAsync("open", urlWithCards, "_blank");
     }
     
-    private async Task ExportToMoxfieldtAsync()
+    private async Task ExportToMoxfieldAsync()
     {
-        var cardNames = await GetCardNames();
+        var cards = await GetAllCardsAsync();
+        var cardNames = string.Join("%0A", cards.Select(c => c.Name));
         const string url = "https://moxfield.com/import?c=";
-        var encodedCardNames = Uri.EscapeDataString(cardNames);
-        var urlWithCards = url + encodedCardNames;
+        var urlWithCards = url + cardNames;
         await JsRuntime.InvokeVoidAsync("open", urlWithCards, "_blank");
     }
     
-
-    private async Task<string> GetCardNames()
-    {
-        return string.Join("\n", (await GetAllCardsAsync()).Select(c => c.Name));
-    }
-
     private async Task<List<ScryfallCard>> GetAllCardsAsync()
     {
         var exportList = new List<ScryfallCard>(Collection.Cards.Count);
