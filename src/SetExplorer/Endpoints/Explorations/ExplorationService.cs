@@ -94,8 +94,8 @@ internal sealed class ExplorationService
             return new NotFound();
         }
 
-        entry.Name = request.Name;
-        entry.SearchString = request.SearchString;
+        entry.Name = request.Name ?? entry.Name;
+        entry.SearchString = request.SearchString ?? entry.SearchString;
 
         await _db.SaveChangesAsync(cancellationToken);
         return new Success();

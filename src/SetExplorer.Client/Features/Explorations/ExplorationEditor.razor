@@ -12,7 +12,19 @@
 
 
 <MudPaper Outlined Class="main-component">
-        <MudTextField Variant="Variant.Filled" FullWidth HelperText="Scryfall Search" Placeholder="set:mid" @bind-Value="@Exploration.SearchString"></MudTextField>
+    <MudTextField 
+        Variant="Variant.Filled" 
+        FullWidth 
+        HelperText="Scryfall Search"
+        Immediate
+        OnKeyDown="@(UiHelper.OnEnterPressedAsync(SaveSearchStringAsync))"
+        @bind-Value="@_searchString"
+        Clearable="@(Exploration.SearchString != _searchString)"
+        OnClearButtonClick="@(() => _searchString = Exploration.SearchString)"
+        Adornment="@(Exploration.SearchString != _searchString ? Adornment.End : Adornment.None)"
+        AdornmentIcon="@Icons.Material.Filled.Save"
+        OnAdornmentClick="@(SaveSearchStringAsync)"
+        ></MudTextField>
 </MudPaper>
 
 <MudPaper Outlined Style="min-height: 350px; display: flex; justify-content: center; align-content: center" Class="main-component carousel-container">
@@ -71,8 +83,15 @@
 {
     [Parameter, EditorRequired] 
     public required ExplorationDto Exploration { get; set; }
+    private string _searchString = "";
     
     private ScryfallCard? _selectedCard;
+
+    protected override void OnParametersSet()
+    {
+        _searchString = Exploration.SearchString;
+        base.OnParametersSet();
+    }
 
     protected override void OnInitialized()
     {
@@ -207,5 +226,17 @@
     {
         Exploration.SeenCards.CollectionChanged -= OnSeenCardsChanged;
         Exploration.CardCollections.CollectionChanged -= OnCardCollectionsChanged;
+    }
+
+    private async Task SaveSearchStringAsync()
+    {
+        var request = new PatchExplorationRequest
+        {
+            Id = Exploration.Id,
+            Name = null,
+            SearchString = _searchString.Trim()
+        };
+        await ExplorationsClient.UpdateExplorationAsync(request);
+        Exploration.SearchString = request.SearchString;
     }
 }

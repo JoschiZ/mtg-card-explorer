@@ -46,6 +46,6 @@ public class RemoveSeenCardFromExplorationRequest
 public sealed class PatchExplorationRequest
 {
     public required ExplorationId Id { get; init; }
-    public required string Name { get; set; }
-    public required string SearchString { get; set; }
+    public string? Name { get; set; }
+    public string? SearchString { get; set; }
 }
