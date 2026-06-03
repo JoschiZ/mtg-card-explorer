@@ -3,6 +3,12 @@
 @inject ScryfallSearchClient SearchClient
 @inject ILogger<Home> Logger
 @inject ISnackbar Snackbar
+
+<div>
+@if (_currentlyLoadingNewCards)
+{
+    <MudProgressLinear Indeterminate Style="width: 100%;"/>
+}
 <MudCarousel TData="ScryfallCard" Style="height: 100%; width: 100%;" ShowArrows="true" ShowBullets="false" SelectedIndex="_selectedIndex" SelectedIndexChanged="@SelectedIndexChangedAsync" AutoCycle="false" EnableSwipeGesture="true">
     <ChildContent>
         @foreach (var card in _cards)
@@ -40,6 +46,8 @@
         </div>
     </NextButtonTemplate>
 </MudCarousel>
+    
+</div>
 
 @code {
     
