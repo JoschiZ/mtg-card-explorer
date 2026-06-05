@@ -232,6 +232,7 @@
     {
         if (!await AuthenticationStateProvider.IsAuthenticatedAsync())
         {
+            Exploration.SearchString = _searchString.Trim();
             return;
         }
         
