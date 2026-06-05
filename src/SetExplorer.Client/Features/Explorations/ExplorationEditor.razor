@@ -230,6 +230,11 @@
 
     private async Task SaveSearchStringAsync()
     {
+        if (!await AuthenticationStateProvider.IsAuthenticatedAsync())
+        {
+            return;
+        }
+        
         var request = new PatchExplorationRequest
         {
             Id = Exploration.Id,
