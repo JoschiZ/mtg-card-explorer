@@ -77,6 +77,7 @@
 </MudPaper>
 
 @code {
+    private static readonly MarkupString Test = new("<MudButton>hallo</MudButton>");
     private List<ExplorationSummaryDto> _explorations = [];
     private bool _loading = true;
     private bool _creating;
