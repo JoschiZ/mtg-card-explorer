@@ -15,7 +15,7 @@ Card Explorer does not aim to be a deckbuilding tool, but to augment your buildi
 2. **Launch the App:**
    From the project root:
    ```bash
-   dotnet run --project src/SetExplorer
+   dotnet run --project src/CardExplorer
    ```
 3. **Explore:**
    Open [https://localhost:5001](https://localhost:5001) in your favorite browser.

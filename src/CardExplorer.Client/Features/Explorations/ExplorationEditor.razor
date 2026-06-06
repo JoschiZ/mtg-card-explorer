@@ -1,0 +1,260 @@
+@using System.Collections.Specialized
+@using CardExplorer.Client.Core
+@using CardExplorer.Client.Core.Scryfall.Models
+@using CardExplorer.Client.Features.Cards
+@using CardExplorer.Client.Features.Collections
+@implements IDisposable
+@inject ILogger<Home> Logger
+@inject IDialogService DialogService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IExplorationsClient ExplorationsClient
+
+
+
+<MudPaper Outlined Class="main-component">
+    <MudTextField 
+        Variant="Variant.Filled" 
+        FullWidth 
+        HelperText="Scryfall Search"
+        Immediate
+        OnKeyDown="@(UiHelper.OnEnterPressedAsync(SaveSearchStringAsync))"
+        @bind-Value="@_searchString"
+        Clearable="@(Exploration.SearchString != _searchString)"
+        OnClearButtonClick="@(() => _searchString = Exploration.SearchString)"
+        Adornment="@(Exploration.SearchString != _searchString ? Adornment.End : Adornment.None)"
+        AdornmentIcon="@Icons.Material.Filled.Save"
+        OnAdornmentClick="@(SaveSearchStringAsync)"
+        ></MudTextField>
+</MudPaper>
+
+<MudPaper Outlined Style="min-height: 350px; display: flex; justify-content: center; align-content: center" Class="main-component carousel-container">
+        <CardCarousel SearchString="@Exploration.SearchString" SelectedCard="_selectedCard" SelectedCardChanged="@OnSelectedCardChanged" SeenCards="Exploration.SeenCards"></CardCarousel>
+</MudPaper>
+
+@if (_selectedCard is not null)
+{
+    <MudPaper Outlined Class="main-component pa-4 collections-container">
+        <div class="d-flex align-center mb-4">
+            <MudText Typo="Typo.h5">Your Collections</MudText>
+            <MudSpacer />
+            <MudButton StartIcon="@Icons.Material.Filled.Add" Variant="Variant.Filled" Color="Color.Primary" OnClick="@AddCollectionAsync">New Collection</MudButton>
+        </div>
+
+        <MudGrid Spacing="4">
+            @if (!Exploration.CardCollections.Any())
+            {
+                <MudItem xs="12">
+                    <MudAlert Severity="Severity.Info">You don't have any collections yet. Click "New Collection" to get started!</MudAlert>
+                </MudItem>
+            }
+            @foreach (var collection in Exploration.CardCollections)
+            {
+                <MudItem xs="12" md="6" lg="4" Class="d-flex">
+                    <CardCollectionDisplay Collection="collection" Class="flex-grow-1">
+                        <ToolBarContent>
+                            <MudIconButton Icon="@Icons.Material.Filled.Add" 
+                                           Color="Color.Primary"
+                                           Size="Size.Small"
+                                           OnClick="@(() => context.AddCardAsync(_selectedCard.Id))"/>
+
+                        </ToolBarContent>
+                        <MenuItems>
+                            <MudMenuItem Icon="@Icons.Material.Filled.DeleteOutline" IconColor="Color.Error" OnClick="@(() => RemoveCollectionAsync(context))">Delete</MudMenuItem>
+                        </MenuItems>
+                    </CardCollectionDisplay>
+                </MudItem>
+            }
+        </MudGrid>
+    </MudPaper>
+}
+
+<style>
+    .main-component{
+        margin-bottom: 1rem;
+    }
+    .collections-container {
+        min-height: 400px;
+    }
+    .carousel-container {
+        height: 600px;
+    }
+    @@media (min-width: 960px) {
+        .carousel-container {
+            height: 350px;
+        }
+    }
+</style>
+
+@code
+{
+    [Parameter, EditorRequired] 
+    public required ExplorationDto Exploration { get; set; }
+    private string _searchString = "";
+    
+    private ScryfallCard? _selectedCard;
+
+    protected override void OnParametersSet()
+    {
+        _searchString = Exploration.SearchString;
+        base.OnParametersSet();
+    }
+
+    protected override void OnInitialized()
+    {
+        Exploration.SeenCards.CollectionChanged += OnSeenCardsChanged;
+        Exploration.CardCollections.CollectionChanged += OnCardCollectionsChanged;
+    }
+
+    private async void OnCardCollectionsChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (e.NewItems is not null)
+        {
+            foreach (var collection in e.NewItems.Cast<CardCollectionDto>())
+            {
+                await OnCollectionAddedAsync(collection);
+            }
+        }
+
+        if (e.Action is NotifyCollectionChangedAction.Remove or NotifyCollectionChangedAction.Replace && e.OldItems is not null)
+        {
+            foreach (var collection in e.OldItems.Cast<CardCollectionDto>())
+            {
+                await OnCollectionRemovedAsync(collection);
+            }
+        }
+    }
+
+    private async Task OnCollectionRemovedAsync(CardCollectionDto collection)
+    {
+        if (!await AuthenticationStateProvider.IsAuthenticatedAsync())
+        {
+            return;
+        }
+
+        var request = new RemoveCollectionFromExplorationRequest
+        {
+            ExplorationId = Exploration.Id,
+            CollectionId = collection.Id
+        };
+        await ExplorationsClient.RemoveCollectionFromExplorationAsync(request);
+        Logger.LogDebug("Remove collection {collection}", collection.Id);
+    }
+
+    private async Task OnCollectionAddedAsync(CardCollectionDto collection)
+    {
+        if (!await AuthenticationStateProvider.IsAuthenticatedAsync())
+        {
+            return;
+        }
+
+        var request = new AddCollectionToExplorationRequest
+        {
+            ExplorationId = Exploration.Id,
+            CollectionId = collection.Id
+        };
+        await ExplorationsClient.AddCollectionToExplorationAsync(request);
+        Logger.LogDebug("Add collection {collection}", collection.Id);
+    }
+
+    private async void OnSeenCardsChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (e.NewItems is not null)
+        {
+            foreach (var card in e.NewItems.Cast<ScryfallCardId>())
+            {
+                await OnSeenCardAddedAsync(card);
+            }
+        }
+
+        if (e.Action is NotifyCollectionChangedAction.Remove or NotifyCollectionChangedAction.Replace && e.OldItems is not null)
+        {
+            foreach (var card in e.OldItems.Cast<ScryfallCardId>())
+            {
+                await OnSeenCardRemovedAsync(card);
+            }
+        }
+    }
+
+    private async Task OnSeenCardAddedAsync(ScryfallCardId card)
+    {
+        if (!await AuthenticationStateProvider.IsAuthenticatedAsync())
+        {
+            return;
+        }
+        
+        var request = new AddSeenCardToExplorationRequest
+        {
+            ExplorationId = Exploration.Id,
+            CardId = card
+        };
+        await ExplorationsClient.AddSeenCardToExplorationAsync(request);
+        Logger.LogDebug("Add seen card {card}", card);
+    }
+
+    private async Task OnSeenCardRemovedAsync(ScryfallCardId card)
+    {
+        if (!await AuthenticationStateProvider.IsAuthenticatedAsync())
+        {
+            return;
+        }
+
+        var request = new RemoveSeenCardFromExplorationRequest
+        {
+            ExplorationId = Exploration.Id,
+            CardId = card
+        };
+        await ExplorationsClient.RemoveSeenCardFromExplorationAsync(request);
+        
+        Logger.LogDebug("Remove seen card {card}", card);
+    }
+
+    private Task OnSelectedCardChanged(ScryfallCard? newSelectedCard)
+    {
+        if (_selectedCard is not null && !Exploration.SeenCards.Contains(_selectedCard.Id))
+        {
+            Exploration.SeenCards.Add(_selectedCard.Id);
+        }
+        _selectedCard = newSelectedCard;
+        
+        return Task.CompletedTask;
+    }
+
+    private async Task AddCollectionAsync()
+    {
+        var collection = await DialogService.CreateCollectionAsync();
+        if (collection is not null)
+        {
+            Exploration.CardCollections.Add(collection);
+        }
+    }
+
+    public void Dispose()
+    {
+        Exploration.SeenCards.CollectionChanged -= OnSeenCardsChanged;
+        Exploration.CardCollections.CollectionChanged -= OnCardCollectionsChanged;
+    }
+
+    private async Task SaveSearchStringAsync()
+    {
+        if (!await AuthenticationStateProvider.IsAuthenticatedAsync())
+        {
+            Exploration.SearchString = _searchString.Trim();
+            return;
+        }
+        
+        var request = new PatchExplorationRequest
+        {
+            Id = Exploration.Id,
+            Name = null,
+            SearchString = _searchString.Trim()
+        };
+        await ExplorationsClient.UpdateExplorationAsync(request);
+        Exploration.SearchString = request.SearchString;
+    }
+
+    private Task RemoveCollectionAsync(CardCollectionDisplay context)
+    {
+        Exploration.CardCollections.Remove(context.Collection);
+        return Task.CompletedTask;
+    }
+}

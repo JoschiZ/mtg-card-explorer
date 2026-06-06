@@ -1,0 +1,53 @@
+@using CardExplorer.Client.Core
+@using CardExplorer.Client.Features.Collections
+@inject ICollectionsClient CollectionsClient
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<MudDialog>
+    <TitleContent>
+        New Collection
+    </TitleContent>
+    <DialogContent>
+        <MudForm Style="width: 100%">
+            <MudTextField T="string" Label="Collection Name" @bind-Value="_request.Name" Required="true" />
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">OK</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = null!;
+    
+    private readonly CreateCollectionRequest _request = new() { Name = "" };
+
+    private async Task Submit()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity?.IsAuthenticated != true)
+        {
+            var localCollection = new CardCollectionDto
+            {
+                Name = _request.Name,
+                Id = CollectionId.From(Guid.Empty),
+                Cards = [],
+                UserId = UserId.From(Guid.Empty)
+            };
+            MudDialog.Close(DialogResult.Ok(localCollection));
+            return;
+        }
+
+        var collection = await CollectionsClient.CreateCollectionAsync(_request);
+        if (collection == null)
+        {
+            MudDialog.Cancel();
+            return;
+        }
+        MudDialog.Close(DialogResult.Ok(collection));
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

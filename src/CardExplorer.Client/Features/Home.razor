@@ -1,0 +1,161 @@
+﻿@page "/"
+@using CardExplorer.Client.Core
+@using CardExplorer.Client.Features.Collections
+@using CardExplorer.Client.Features.Explorations
+@using System.Collections.ObjectModel
+@using CardExplorer.Client.Features.Cards
+@inject IExplorationsClient ExplorationsClient
+@inject AuthenticationStateProvider AuthStateProvider
+@inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
+
+<PageTitle>Home</PageTitle>
+
+<AuthorizeView>
+    <Authorized>
+        <MudText Typo="Typo.h5" Class="mb-4">Resume Exploration</MudText>
+        <MudGrid Class="mb-8">
+            @if (_loading)
+            {
+                <MudItem xs="12">
+                    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                </MudItem>
+            }
+            else if (_explorations.Any())
+            {
+                @foreach (var exploration in _explorations)
+                {
+                    <MudItem xs="12" sm="6" md="4">
+                        <MudCard Elevation="2">
+                            <MudCardHeader>
+                                <CardHeaderContent>
+                                    <MudText Typo="Typo.h6">@exploration.Name</MudText>
+                                    <MudText Typo="Typo.body2">@exploration.SearchString</MudText>
+                                </CardHeaderContent>
+                            </MudCardHeader>
+                            <MudCardActions>
+                                <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="@(() => ResumeExploration(exploration))">Resume</MudButton>
+                            </MudCardActions>
+                        </MudCard>
+                    </MudItem>
+                }
+            }
+            else
+            {
+                <MudItem xs="12">
+                    <MudAlert Severity="Severity.Info">No explorations found. Start a new one below!</MudAlert>
+                </MudItem>
+            }
+        </MudGrid>
+    </Authorized>
+    <NotAuthorized>
+        <MudAlert Severity="Severity.Info" Class="mb-8">
+            <MudLink Href="Account/Login">Log in</MudLink> to save your explorations and resume them later.
+        </MudAlert>
+    </NotAuthorized>
+</AuthorizeView>
+
+<MudPaper Class="pa-6" Elevation="3">
+    <MudText Typo="Typo.h5" Class="mb-4">Start New Exploration</MudText>
+    <MudForm @ref="_form" @bind-IsValid="@_formValid">
+        <MudTextField T="string" Label="Exploration Name" @bind-Value="_newName" Required="true" RequiredError="Name is required!" />
+        <MudTextField T="string" Label="Search String (e.g., set:mid)" @bind-Value="_newSearchString" Required="true" RequiredError="Search string is required!" />
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-4" Disabled="@(!_formValid || _creating)" OnClick="StartNewExploration">
+            @if (_creating)
+            {
+                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                <MudText Class="ms-2">Creating...</MudText>
+            }
+            else
+            {
+                <MudText>Start Exploration</MudText>
+            }
+        </MudButton>
+    </MudForm>
+</MudPaper>
+
+@code {
+    private static readonly MarkupString Test = new("<MudButton>hallo</MudButton>");
+    private List<ExplorationSummaryDto> _explorations = [];
+    private bool _loading = true;
+    private bool _creating;
+    private bool _formValid;
+    private MudForm _form = null!;
+
+    private string _newName = string.Empty;
+    private string _newSearchString = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity?.IsAuthenticated == true)
+        {
+            await LoadExplorations();
+        }
+        _loading = false;
+    }
+
+    private async Task LoadExplorations()
+    {
+        try
+        {
+            _explorations = await ExplorationsClient.GetExplorationsAsync(new GetExplorationsRequest());
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("Failed to load explorations.", Severity.Error);
+        }
+    }
+
+    private void ResumeExploration(ExplorationSummaryDto exploration)
+    {
+        NavigationManager.NavigateTo($"/explorations/{exploration.Id}");
+    }
+
+    private async Task StartNewExploration()
+    {
+        await _form.ValidateAsync();
+        if (!_formValid) return;
+
+        _creating = true;
+        try
+        {
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            if (authState.User.Identity?.IsAuthenticated == true)
+            {
+                var request = new CreateExplorationRequest
+                {
+                    Name = _newName,
+                    SearchString = _newSearchString
+                };
+                var created = await ExplorationsClient.CreateExplorationAsync(request);
+                if (created != null)
+                {
+                    NavigationManager.NavigateTo($"/explorations/{created.Id}");
+                }
+                else
+                {
+                    Snackbar.Add("Failed to create exploration.", Severity.Error);
+                }
+            }
+            else
+            {
+                // Guest exploration
+                var uri = NavigationManager.GetUriWithQueryParameters($"/explorations/{Guid.Empty}", new Dictionary<string, object?>
+                {
+                    ["name"] = _newName,
+                    ["search"] = _newSearchString
+                });
+                NavigationManager.NavigateTo(uri);
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("An error occurred while starting the exploration.", Severity.Error);
+        }
+        finally
+        {
+            _creating = false;
+        }
+    }
+}

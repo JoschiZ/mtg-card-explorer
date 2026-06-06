@@ -7,8 +7,8 @@
     <File Path="README.md" />
   </Folder>
   <Folder Name="/src/">
-    <Project Path="src/SetExplorer.Client/SetExplorer.Client.csproj" />
-    <Project Path="src/SetExplorer/SetExplorer.csproj" />
+    <Project Path="src\CardExplorer.Client\CardExplorer.Client.csproj" />
+    <Project Path="src\CardExplorer\CardExplorer.csproj" />
   </Folder>
   <Folder Name="/tests/" />
 </Solution>

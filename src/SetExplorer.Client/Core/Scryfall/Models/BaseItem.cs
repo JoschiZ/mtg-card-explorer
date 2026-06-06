@@ -1,9 +1,0 @@
-using System.Text.Json.Serialization;
-
-namespace SetExplorer.Client.Core.Scryfall.Models;
-
-public abstract class BaseItem
-{
-    [JsonPropertyName("object")]
-    public required string ObjectType { get; set; }
-}

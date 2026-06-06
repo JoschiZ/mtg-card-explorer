@@ -1,0 +1,199 @@
+@using System.Collections.Specialized
+@using CardExplorer.Client.Core
+@using CardExplorer.Client.Core.Scryfall
+@using CardExplorer.Client.Core.Scryfall.Models
+@using CardExplorer.Client.Features.Cards
+@inject ICollectionsClient CollectionsClient
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IJsApiService JsApiService
+@inject ISnackbar Snackbar
+@inject ScryfallSearchClient ScryfallSearchClient
+@implements IDisposable
+@inject IJSRuntime JsRuntime
+
+<MudCard Outlined Class="@($"h-100 {Class}")">
+    <MudCardHeader>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h6">@Collection.Name</MudText>
+        </CardHeaderContent>
+        <CardHeaderActions>
+            <MudStack Row AlignItems="AlignItems.End" Justify="Justify.Center">
+                @ToolBarContent?.Invoke(this)
+                <MudMenu Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small" AriaLabel="More Menu">
+                    <MudMenuItem Icon="@Icons.Custom.Brands.Archidekt" OnClick="@ExportToArchidektAsync">Archidekt</MudMenuItem>
+                    <MudMenuItem Icon="@Icons.Custom.Brands.Moxfield" OnClick="@ExportToMoxfieldAsync">Moxfield</MudMenuItem>
+                    <MudMenuItem Icon="@Icons.Material.Filled.ContentCopy" OnClick="@ExportToClipboardAsync">Clipboard</MudMenuItem>
+                    @MenuItems?.Invoke(this)
+                </MudMenu>
+            </MudStack>
+        </CardHeaderActions>
+    </MudCardHeader>
+    <MudCardContent>
+        @if (Collection.Cards.Any())
+        {
+            <div class="d-flex flex-wrap gap-1">
+                @foreach (var cardId in Collection.Cards)
+                {
+                    <div class="card-item-container">
+                        <CardNameDisplay CardId="cardId"></CardNameDisplay>
+                        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.RemoveCircle" Color="Color.Warning" OnClick="@(() => RemoveCardAsync(cardId))" Class="remove-btn" />
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="font-italic">No cards in this collection.</MudText>
+        }
+    </MudCardContent>
+</MudCard>
+
+<style>
+    .card-item-container {
+        display: flex;
+        align-items: center;
+        background-color: rgba(128, 128, 128, 0.1);
+        border: 1px solid rgba(128, 128, 128, 0.2);
+        border-radius: 4px;
+        padding-left: 8px;
+        justify-content: space-between;
+        width: 100%;
+    }
+    .remove-btn {
+        margin-left: 2px;
+    }
+</style>
+
+@code {
+    [Parameter, EditorRequired]
+    public required CardCollectionDto Collection  { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter]
+    public RenderFragment<CardCollectionDisplay>? ToolBarContent { get; set; }
+
+    [Parameter]
+    public RenderFragment<CardCollectionDisplay>? MenuItems { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Collection.Cards.CollectionChanged += Collection_CollectionChanged;
+        base.OnParametersSet();
+    }
+
+    private async void Collection_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (e.NewItems is not null)
+        {
+            foreach (var card in e.NewItems.Cast<ScryfallCardId>())
+            {
+                await OnCardAddedAsync(card);
+            }
+        }
+
+        if (e.Action is NotifyCollectionChangedAction.Remove or NotifyCollectionChangedAction.Replace && e.OldItems is not null)
+        {
+            foreach (var card in e.OldItems.Cast<ScryfallCardId>())
+            {
+                await OnCardRemovedAsync(card);
+            }
+        }
+    }
+
+    private async Task OnCardAddedAsync(ScryfallCardId card)
+    {
+        if (!await AuthenticationStateProvider.IsAuthenticatedAsync())
+        {
+            return;
+        }
+
+        var request = new AddCardToCollectionRequest
+        {
+            CollectionId = Collection.Id,
+            CardId = card
+        };
+        await CollectionsClient.AddCardToCollectionAsync(request);
+    }
+
+    private async Task OnCardRemovedAsync(ScryfallCardId card)
+    {
+        if (!await AuthenticationStateProvider.IsAuthenticatedAsync())
+        {
+            return;
+        }
+
+        var request = new RemoveCardFromCollectionRequest
+        {
+            CollectionId = Collection.Id,
+            CardId = card
+        };
+        await CollectionsClient.RemoveCardFromCollectionAsync(request);
+    }
+    
+    public Task RemoveCardAsync(ScryfallCardId card)
+    {
+        Collection.Cards.Remove(card);
+        return Task.CompletedTask;
+    }
+
+    public Task AddCardAsync(ScryfallCardId card)
+    {
+        if (Collection.Cards.Contains(card))
+        {
+            return Task.CompletedTask;
+        }
+        
+        Collection.Cards.Add(card);
+        return Task.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+        Collection.Cards.CollectionChanged -= Collection_CollectionChanged;
+    }
+
+    private async Task ExportToClipboardAsync()
+    {
+        var sb = await GetAllCardsAsync();
+        var exportString = string.Join("\n", sb.Select(c => c.Name));
+        await JsApiService.CopyToClipboardAsync(exportString);
+        Snackbar.Add("Cards exported to clipboard", Severity.Success);
+    }
+
+    private async Task ExportToArchidektAsync()
+    {
+        var cards = await GetAllCardsAsync();
+        var cardNames = string.Join("%0A", cards.Select(c => c.Name));
+        const string url = "https://archidekt.com/cardImport?c=";
+        var urlWithCards = url + cardNames;
+        await JsRuntime.InvokeVoidAsync("open", urlWithCards, "_blank");
+    }
+    
+    private async Task ExportToMoxfieldAsync()
+    {
+        var cards = await GetAllCardsAsync();
+        var cardNames = string.Join("%0A", cards.Select(c => c.Name));
+        const string url = "https://moxfield.com/import?c=";
+        var urlWithCards = url + cardNames;
+        await JsRuntime.InvokeVoidAsync("open", urlWithCards, "_blank");
+    }
+    
+    private async Task<List<ScryfallCard>> GetAllCardsAsync()
+    {
+        var exportList = new List<ScryfallCard>(Collection.Cards.Count);
+        foreach (var cardId in Collection.Cards)
+        {
+            var card = await ScryfallSearchClient.GetCardAsync(cardId);
+            if (card is null)
+            {
+                Snackbar.Add($"Failed to export card {cardId}", Severity.Error);
+                continue;
+            }
+            exportList.Add(card);
+        }
+        return exportList;
+    }
+
+}

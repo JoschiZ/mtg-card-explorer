@@ -7,10 +7,10 @@
 - **Strong Typing:** Use **Vogen** for Value Objects and IDs (e.g., `ScryfallCardId`, `UserId`).
 
 ## Project Structure
-- `src/SetExplorer`: Server-side logic, Endpoints, Data access, Migrations.
-- `src/SetExplorer.Client`: Frontend logic, Blazor components, Shared DTOs.
-- `src/SetExplorer.Client/Features`: Group frontend components by feature.
-- `src/SetExplorer/Endpoints`: Group API endpoints by resource.
+- `src/CardExplorer`: Server-side logic, Endpoints, Data access, Migrations.
+- `src/CardExplorer.Client`: Frontend logic, Blazor components, Shared DTOs.
+- `src/CardExplorer.Client/Features`: Group frontend components by feature.
+- `src/CardExplorer/Endpoints`: Group API endpoints by resource.
 
 ## Coding Standards
 - **Strongly Typed IDs:** Always use Vogen-generated ID types instead of raw `Guid`, 'int' or `string` where applicable.

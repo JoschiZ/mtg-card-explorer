@@ -1,0 +1,53 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>aspnet-CardExplorer-ce44686e-d4b7-42ec-b294-88e22e04e1dc</UserSecretsId>
+    <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="FastEndpoints" Version="8.2.0-beta.34" />
+    <PackageReference Include="FastEndpoints.OpenApi" Version="8.2.0-beta.34" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.8" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.2" />
+    <PackageReference Include="OneOf" Version="3.0.271" />
+    <PackageReference Include="QRCoder" Version="1.8.0" />
+    <PackageReference Include="Scalar.AspNetCore" Version="2.14.14" />
+    <ProjectReference Include="..\CardExplorer.Client\CardExplorer.Client.csproj" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="10.0.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.8">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Extensions.MudBlazor.StaticInput" Version="4.1.0" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Content Include="..\..\.dockerignore">
+      <Link>.dockerignore</Link>
+    </Content>
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="wwwroot\lib\qrcodejs\.gitignore" />
+    <_ContentIncludedByDefault Remove="wwwroot\lib\qrcodejs\bower.json" />
+    <_ContentIncludedByDefault Remove="wwwroot\lib\qrcodejs\index-svg.html" />
+    <_ContentIncludedByDefault Remove="wwwroot\lib\qrcodejs\index.html" />
+    <_ContentIncludedByDefault Remove="wwwroot\lib\qrcodejs\index.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\lib\qrcodejs\jquery.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\lib\qrcodejs\LICENSE" />
+    <_ContentIncludedByDefault Remove="wwwroot\lib\qrcodejs\qrcode.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\lib\qrcodejs\qrcode.min.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\lib\qrcodejs\README.md" />
+  </ItemGroup>
+
+</Project>
