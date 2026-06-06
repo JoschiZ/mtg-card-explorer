@@ -52,9 +52,15 @@
                 <MudItem xs="12" md="6" lg="4" Class="d-flex">
                     <CardCollectionDisplay Collection="collection" Class="flex-grow-1">
                         <ToolBarContent>
-                            <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Primary" 
+                            <MudIconButton Icon="@Icons.Material.Filled.Add" 
+                                           Color="Color.Primary"
+                                           Size="Size.Small"
                                            OnClick="@(() => context.AddCardAsync(_selectedCard.Id))"/>
+
                         </ToolBarContent>
+                        <MenuItems>
+                            <MudMenuItem OnClick="@(() => RemoveCollectionAsync(context))">Delete</MudMenuItem>
+                        </MenuItems>
                     </CardCollectionDisplay>
                 </MudItem>
             }
@@ -244,5 +250,11 @@
         };
         await ExplorationsClient.UpdateExplorationAsync(request);
         Exploration.SearchString = request.SearchString;
+    }
+
+    private Task RemoveCollectionAsync(CardCollectionDisplay context)
+    {
+        Exploration.CardCollections.Remove(context.Collection);
+        return Task.CompletedTask;
     }
 }

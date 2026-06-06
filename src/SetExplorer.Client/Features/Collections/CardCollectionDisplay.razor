@@ -19,10 +19,11 @@
         </CardHeaderContent>
         <CardHeaderActions>
             @ToolBarContent?.Invoke(this)
-            <MudMenu Variant="Variant.Outlined" Size="Size.Small" Label="Export">
+            <MudMenu Icon="@Icons.Material.Filled.MoreVert" Variant="Variant.Outlined" Size="Size.Small" AriaLabel="More Menu">
                 <MudMenuItem OnClick="@ExportToArchidektAsync">Archidekt</MudMenuItem>
                 <MudMenuItem OnClick="@ExportToMoxfieldAsync">Moxfield</MudMenuItem>
                 <MudMenuItem OnClick="@ExportToClipboardAsync">Clipboard</MudMenuItem>
+                @MenuItems?.Invoke(this)
             </MudMenu>
         </CardHeaderActions>
     </MudCardHeader>
@@ -71,6 +72,9 @@
 
     [Parameter]
     public RenderFragment<CardCollectionDisplay>? ToolBarContent { get; set; }
+
+    [Parameter]
+    public RenderFragment<CardCollectionDisplay>? MenuItems { get; set; }
 
     protected override void OnInitialized()
     {
