@@ -5,38 +5,64 @@
     <div class="card-image-wrapper">
         <CardImage Card="Card" IsSeen="IsSeen"></CardImage>
     </div>
-    <div class="card-text-wrapper">
+    <MudPaper Class="card-text-wrapper" Elevation="0" Outlined>
         @if (!Card.HasMultipleFaces)
         {
-            <MudText Typo="Typo.h6">@Card.Name</MudText>
-            <MudText Typo="Typo.body1">@_oracleText</MudText>
+            <MudStack Row>
+                <MudText Typo="Typo.h6">@Card.Name</MudText>
+                <MudSpacer/>
+                <MudText Typo="Typo.h6">@_manaCost</MudText>
+            </MudStack>
+            <MudDivider Class="segment-divider" DividerType="DividerType.FullWidth"/>
+            <MudText Class="card-oracle-text" Typo="Typo.body1">@_oracleText</MudText>
         }
         else
         {
             <div>
-                <MudText Typo="Typo.h6">@Card.CardFaces[0].Name</MudText>
-                <MudText Typo="Typo.body1">@_frontText</MudText>
+                <MudStack Row>
+                    <MudText Typo="Typo.h6">@Card.CardFaces[0].Name</MudText>
+                    <MudSpacer/>
+                    <MudText Typo="Typo.h6">@_frontManaCost</MudText>
+                </MudStack>
+                <MudText Class="card-oracle-text" Typo="Typo.body1">@_frontText</MudText>
             </div>
             <MudDivider DividerType="DividerType.FullWidth" Style="margin-top: 1rem; margin-bottom: 1rem"/>
             <div>
-                <MudText Typo="Typo.h6">@Card.CardFaces[1].Name</MudText>
-                <MudText Typo="Typo.body1">@_backText</MudText>
+                <MudStack Row>
+                    <MudText Typo="Typo.h6">@Card.CardFaces[1].Name</MudText>
+                    <MudSpacer/>
+                    <MudText Typo="Typo.h6">@_backManaCost</MudText>
+                </MudStack>
+                <MudText Class="card-oracle-text" Typo="Typo.body1">@_backText</MudText>
             </div>
         }
-    </div>
+    </MudPaper>
 </div>
 
 <style>
+    .segment-divider{
+        margin-bottom: 0.5rem;
+    }
+    
     .card-display-container {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: flex-start;
         height: 100%;
         width: 100%;
+        max-width: 700px;
         gap: 0.5rem;
         touch-action: pan-y;
         overflow-y: hidden;
+    }
+    
+    .card-oracle-text {}
+    
+    .card-oracle-text p + p {
+        margin-top: 1rem;
     }
 
     .card-symbol {
@@ -72,8 +98,7 @@
         flex: 1 1 auto;
         min-width: 0;
         width: 100%;
-        padding-top: 0.5rem;
-        padding-bottom: 0.5rem;
+        padding: 0.5rem 1rem;
     }
 
     @@media (min-width: 960px) {

@@ -12,23 +12,27 @@ public partial class CardDisplay
 
     [Parameter] public bool IsSeen { get; set; }
 
+    private MarkupString? _manaCost;
     private MarkupString? _oracleText;
+    
+    private MarkupString? _frontManaCost;
     private MarkupString? _frontText;
+    private MarkupString? _backManaCost;
     private MarkupString? _backText;
     private Dictionary<string, ScryfallMtgSymbol>? _symbolLookup;
 
     protected override async Task OnInitializedAsync()
     {
-        if (Card.OracleText?.Contains('{') == true || Card.CardFaces.Any(x => x.OracleText?.Contains('{') ?? false))
-        {
-            _symbolLookup = await SymbologyClient.GetSymbolLookupAsync(CancellationToken.None);
-        }
+        _symbolLookup = await SymbologyClient.GetSymbolLookupAsync(CancellationToken.None);
 
         _oracleText = GetCardText(Card.OracleText);
+        _manaCost = GetCardText(Card.ManaCost);
 
         if (Card.HasMultipleFaces)
         {
+            _frontManaCost = GetCardText(Card.CardFaces[0].ManaCost);
             _frontText = GetCardText(Card.CardFaces[0].OracleText);
+            _backManaCost = GetCardText(Card.CardFaces[1].ManaCost);
             _backText = GetCardText(Card.CardFaces[1].OracleText);
         }
 
@@ -43,12 +47,21 @@ public partial class CardDisplay
             return null;
         }
 
+        var oracleSegments = text
+            .Replace("(", "<i>(")
+            .Replace(")", ")</i>")
+            .Split('\n')
+            .Select(x => $"<p>{x}</p>");
+
+        var oracleHtml = string.Join("\n", oracleSegments);
+        
+        
         if (_symbolLookup is null)
         {
-            return new MarkupString(text);
+            return new MarkupString(oracleHtml);
         }
 
-        var matches = RegexHelper.CardSymbolRegex().Replace(text, ReplaceCardSymbol);
+        var matches = RegexHelper.CardSymbolRegex().Replace(oracleHtml, ReplaceCardSymbol);
 
         return new MarkupString(matches);
 
