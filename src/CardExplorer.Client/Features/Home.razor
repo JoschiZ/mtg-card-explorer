@@ -21,9 +21,9 @@
                     <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
                 </MudItem>
             }
-            else if (_explorations.Any())
+            else if (Explorations?.Any() == true)
             {
-                @foreach (var exploration in _explorations)
+                @foreach (var exploration in Explorations)
                 {
                     <MudItem xs="12" sm="6" md="4">
                         <MudCard Elevation="2">
@@ -66,7 +66,7 @@
     <MudForm @ref="_form" @bind-IsValid="@_formValid">
         <MudTextField T="string" Label="Exploration Name" @bind-Value="_newName" Required="true" RequiredError="Name is required!" />
         <MudTextField T="string" Label="Search String (e.g., set:mid)" @bind-Value="_newSearchString" Required="true" RequiredError="Search string is required!" />
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-4" Disabled="@(!_formValid || _creating)" OnClick="StartNewExploration">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-4" Disabled="@(!_formValid || _creating)" OnClick="@StartNewExploration">
             @if (_creating)
             {
                 <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
@@ -82,7 +82,8 @@
 
 @code {
     private static readonly MarkupString Test = new("<MudButton>hallo</MudButton>");
-    private List<ExplorationSummaryDto> _explorations = [];
+    [PersistentState]
+    public List<ExplorationSummaryDto>? Explorations { get; set; }
     private bool _loading = true;
     private bool _creating;
     private bool _formValid;
@@ -94,7 +95,7 @@
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-        if (authState.User.Identity?.IsAuthenticated == true)
+        if (authState.User.Identity?.IsAuthenticated == true && Explorations is null)
         {
             await LoadExplorations();
         }
@@ -105,7 +106,7 @@
     {
         try
         {
-            _explorations = await ExplorationsClient.GetExplorationsAsync(new GetExplorationsRequest());
+            Explorations = await ExplorationsClient.GetExplorationsAsync(new GetExplorationsRequest());
         }
         catch (Exception)
         {
@@ -168,7 +169,7 @@
     private async Task DeleteExplorationAsync(ExplorationId explorationId)
     {
         await ExplorationsClient.DeleteExplorationAsync(new DeleteExplorationRequest(explorationId));
-        _explorations.RemoveAll(e => e.Id == explorationId);
+        Explorations?.RemoveAll(e => e.Id == explorationId);
     }
 
 }

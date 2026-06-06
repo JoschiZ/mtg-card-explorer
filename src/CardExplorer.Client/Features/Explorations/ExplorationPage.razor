@@ -6,7 +6,7 @@
 @inject ISnackbar Snackbar
 
 <MudExitPrompt Disabled="@(Id != Guid.Empty)" Title="Warning Guest Exploration" Text="Your exploration will be lost as soon as you leave this page"></MudExitPrompt>
-<PageTitle>@(_exploration?.Name ?? "Exploration")</PageTitle>
+<PageTitle>@(Exploration?.Name ?? "Exploration")</PageTitle>
 
 @if (_loading)
 {
@@ -14,14 +14,14 @@
         <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
     </MudContainer>
 }
-else if (_exploration != null)
+else if (Exploration != null)
 {
     <MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
         <div class="d-flex align-center mb-4">
             <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" OnClick="BackToHome" />
-            <MudText Typo="Typo.h4" Class="ml-2">@_exploration.Name</MudText>
+            <MudText Typo="Typo.h4" Class="ml-2">@Exploration.Name</MudText>
         </div>
-        <ExplorationEditor Exploration="_exploration" />
+        <ExplorationEditor Exploration="Exploration" />
     </MudContainer>
 }
 else
@@ -42,22 +42,27 @@ else
     [SupplyParameterFromQuery]
     public string? Search { get; set; }
 
-    private ExplorationDto? _exploration;
-    private bool _loading = true;
+    [PersistentState]
+    public ExplorationDto? Exploration {get; set;}
 
-    protected override async Task OnParametersSetAsync()
+    private bool _loading;
+
+    protected override async Task OnInitializedAsync()
     {
         await LoadExploration();
+        await base.OnInitializedAsync();
     }
 
     private async Task LoadExploration()
     {
+        if (Exploration != null) return;
+        
         _loading = true;
         try
         {
             if (Id == Guid.Empty)
             {
-                _exploration = new ExplorationDto
+                Exploration = new ExplorationDto
                 {
                     Id = ExplorationId.From(Guid.Empty),
                     Name = Name ?? "Guest Exploration",
@@ -69,7 +74,7 @@ else
             }
             else
             {
-                _exploration = await ExplorationsClient.GetExplorationByIdAsync(ExplorationId.From(Id));
+                Exploration = await ExplorationsClient.GetExplorationByIdAsync(ExplorationId.From(Id));
             }
         }
         catch (Exception)
