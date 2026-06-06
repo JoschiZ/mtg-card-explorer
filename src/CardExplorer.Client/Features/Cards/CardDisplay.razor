@@ -1,6 +1,7 @@
 @using CardExplorer.Client.Core.Scryfall.Symbology
 @inject SymbologyClient SymbologyClient
 
+<!--suppress CssUnresolvedCustomProperty -->
 <div class="card-display-container">
     <div class="card-image-wrapper">
         <CardImage Card="Card" IsSeen="IsSeen"></CardImage>
@@ -17,6 +18,14 @@
             <MudText Typo="Typo.body1">@Card.TypeLine</MudText>
             <MudDivider Class="segment-divider" DividerType="DividerType.FullWidth"/>
             <MudText Class="card-oracle-text" Typo="Typo.body1">@_oracleText</MudText>
+            @if (Card.Loyalty != null)
+            {
+                <MudText Class="card-stat-line" Typo="Typo.body1">Loyalty: @Card.Loyalty</MudText>
+            }
+            @if (Card.Power is not null || Card.Toughness is not null)
+            {
+                <MudText Class="card-stat-line" Typo="Typo.body1">@Card.Power / @Card.Toughness</MudText>
+            }
         }
         else
         {
@@ -30,6 +39,14 @@
                 <MudText Typo="Typo.body1">@Card.CardFaces[0].TypeLine</MudText>
                 <MudDivider Class="segment-divider" DividerType="DividerType.FullWidth"/>
                 <MudText Class="card-oracle-text" Typo="Typo.body1">@_frontText</MudText>
+                @if (Card.CardFaces[0].Loyalty != null)
+                {
+                    <MudText Class="card-stat-line" Typo="Typo.body1">Loyalty: @Card.CardFaces[0].Loyalty</MudText>
+                }
+                @if (Card.CardFaces[0].Power is not null || Card.Toughness is not null)
+                {
+                    <MudText Class="card-stat-line" Typo="Typo.body1">@Card.CardFaces[0].Power / @Card.CardFaces[0].Toughness</MudText>
+                }
             </div>
             <MudDivider DividerType="DividerType.Middle" Style="margin-top: 1rem; margin-bottom: 1rem; border-width: 3px"/>
             <div>
@@ -42,6 +59,14 @@
                 <MudText Typo="Typo.body1">@Card.CardFaces[1].TypeLine</MudText>
                 <MudDivider Class="segment-divider" DividerType="DividerType.FullWidth"/>
                 <MudText Class="card-oracle-text" Typo="Typo.body1">@_backText</MudText>
+                @if (Card.CardFaces[1].Loyalty != null)
+                {
+                    <MudText Class="card-stat-line" Typo="Typo.body1">Loyalty: @Card.CardFaces[1].Loyalty</MudText>
+                }
+                @if (Card.CardFaces[1].Power is not null || Card.Toughness is not null)
+                {
+                    <MudText Class="card-stat-line" Typo="Typo.body1">@Card.CardFaces[1].Power / @Card.CardFaces[1].Toughness</MudText>
+                }
             </div>
         }
     </MudPaper>
@@ -109,6 +134,13 @@
         padding: 0.5rem 1rem;
     }
 
+    .card-stat-line {
+        justify-self: end;
+        border: 1px solid var(--mud-palette-lines-inputs);
+        border-radius: 4px;
+        padding: 0.2rem;
+    }
+    
     @@media (min-width: 960px) {
         .card-display-container {
             flex-direction: row;
