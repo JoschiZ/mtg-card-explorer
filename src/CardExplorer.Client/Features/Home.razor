@@ -1,9 +1,6 @@
 ﻿@page "/"
-@using CardExplorer.Client.Core
 @using CardExplorer.Client.Features.Collections
 @using CardExplorer.Client.Features.Explorations
-@using System.Collections.ObjectModel
-@using CardExplorer.Client.Features.Cards
 @inject IExplorationsClient ExplorationsClient
 @inject AuthenticationStateProvider AuthStateProvider
 @inject ISnackbar Snackbar
@@ -64,8 +61,8 @@
 <MudPaper Class="pa-6" Elevation="3">
     <MudText Typo="Typo.h5" Class="mb-4">Start New Exploration</MudText>
     <MudForm @ref="_form" @bind-IsValid="@_formValid">
-        <MudTextField T="string" Label="Exploration Name" @bind-Value="_newName" Required="true" RequiredError="Name is required!" />
-        <MudTextField T="string" Label="Search String (e.g., set:mid)" @bind-Value="_newSearchString" Required="true" RequiredError="Search string is required!" />
+        <MudTextField MaxLength="50" T="string" Label="Exploration Name" @bind-Value="_newName" Required="true" RequiredError="Name is required!" />
+        <MudTextField MaxLength="1000" T="string" Label="Search String (e.g., set:mid)" @bind-Value="_newSearchString" Required="true" RequiredError="Search string is required!" />
         <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-4" Disabled="@(!_formValid || _creating)" OnClick="@StartNewExploration">
             @if (_creating)
             {
