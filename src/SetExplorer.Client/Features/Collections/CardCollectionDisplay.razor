@@ -1,5 +1,4 @@
 @using System.Collections.Specialized
-@using System.Text
 @using SetExplorer.Client.Core
 @using SetExplorer.Client.Core.Scryfall
 @using SetExplorer.Client.Core.Scryfall.Models
@@ -15,16 +14,18 @@
 <MudCard Outlined Class="@($"h-100 {Class}")">
     <MudCardHeader>
         <CardHeaderContent>
-            <MudText Typo="Typo.h6">@Collection.Name (@Collection.Cards.Count)</MudText>
+            <MudText Typo="Typo.h6">@Collection.Name</MudText>
         </CardHeaderContent>
         <CardHeaderActions>
-            @ToolBarContent?.Invoke(this)
-            <MudMenu Icon="@Icons.Material.Filled.MoreVert" Variant="Variant.Outlined" Size="Size.Small" AriaLabel="More Menu">
-                <MudMenuItem OnClick="@ExportToArchidektAsync">Archidekt</MudMenuItem>
-                <MudMenuItem OnClick="@ExportToMoxfieldAsync">Moxfield</MudMenuItem>
-                <MudMenuItem OnClick="@ExportToClipboardAsync">Clipboard</MudMenuItem>
-                @MenuItems?.Invoke(this)
-            </MudMenu>
+            <MudStack Row AlignItems="AlignItems.End" Justify="Justify.Center">
+                @ToolBarContent?.Invoke(this)
+                <MudMenu Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small" AriaLabel="More Menu">
+                    <MudMenuItem Icon="@Icons.Custom.Brands.Archidekt" OnClick="@ExportToArchidektAsync">Archidekt</MudMenuItem>
+                    <MudMenuItem Icon="@Icons.Custom.Brands.Moxfield" OnClick="@ExportToMoxfieldAsync">Moxfield</MudMenuItem>
+                    <MudMenuItem Icon="@Icons.Material.Filled.ContentCopy" OnClick="@ExportToClipboardAsync">Clipboard</MudMenuItem>
+                    @MenuItems?.Invoke(this)
+                </MudMenu>
+            </MudStack>
         </CardHeaderActions>
     </MudCardHeader>
     <MudCardContent>

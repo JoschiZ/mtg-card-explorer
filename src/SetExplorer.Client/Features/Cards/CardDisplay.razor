@@ -89,11 +89,9 @@
             }
             
             return $"""
-                   <abbr 
-                   title="{symbol.Description}" 
-                   class="card-symbol"
-                   style="background-image: url('{symbol.SvgUri}')"
-                   >{symbol.Symbol}</abbr>
+                       <abbr title="{symbol.Description}" 
+                             class="card-symbol"
+                             style="background-image: url('{symbol.SvgUri}')">{symbol.Symbol}</abbr>
                    """;
             
         }
