@@ -4,6 +4,7 @@ namespace CardExplorer.Client.Features.Explorations;
 
 public interface IExplorationsClient
 {
+    Task DeleteExplorationAsync(DeleteExplorationRequest request, CancellationToken ct = default);
     Task<List<ExplorationSummaryDto>> GetExplorationsAsync(GetExplorationsRequest request, CancellationToken ct = default);
     Task<ExplorationDto?> GetExplorationByIdAsync(ExplorationId explorationId, CancellationToken ct = default);
     Task<ExplorationDto?> CreateExplorationAsync(CreateExplorationRequest request, CancellationToken ct = default);

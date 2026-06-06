@@ -57,6 +57,18 @@ internal sealed class ExplorationService
         return exploration.MapToDto();
     }
 
+    public async Task<OneOf<Success, NotFound>> DeleteAsync(UserId userId, ExplorationId explorationId,
+        CancellationToken cancellationToken)
+    {
+        var exploration = await _db.Users
+            .Where(u => u.Id == userId)
+            .SelectMany(u => u.Explorations)
+            .Where(x => x.Id == explorationId)
+            .ExecuteDeleteAsync(cancellationToken);
+        
+        return exploration > 0 ? new Success() : new NotFound();
+    }
+
     public async Task<OneOf<ExplorationDto, NotFound>> CreateAsync(UserId userId, CreateExplorationRequest request,
         CancellationToken cancellationToken)
     {

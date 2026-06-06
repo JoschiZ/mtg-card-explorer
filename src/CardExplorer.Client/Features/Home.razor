@@ -32,6 +32,12 @@
                                     <MudText Typo="Typo.h6">@exploration.Name</MudText>
                                     <MudText Typo="Typo.body2">@exploration.SearchString</MudText>
                                 </CardHeaderContent>
+                                <CardHeaderActions>
+                                    <MudIconButton 
+                                        Color="Color.Error" 
+                                        Icon="@Icons.Material.Filled.RemoveCircle"
+                                        OnClick="@(() => DeleteExplorationAsync(exploration.Id))"></MudIconButton>
+                                </CardHeaderActions>
                             </MudCardHeader>
                             <MudCardActions>
                                 <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="@(() => ResumeExploration(exploration))">Resume</MudButton>
@@ -158,4 +164,11 @@
             _creating = false;
         }
     }
+
+    private async Task DeleteExplorationAsync(ExplorationId explorationId)
+    {
+        await ExplorationsClient.DeleteExplorationAsync(new DeleteExplorationRequest(explorationId));
+        _explorations.RemoveAll(e => e.Id == explorationId);
+    }
+
 }

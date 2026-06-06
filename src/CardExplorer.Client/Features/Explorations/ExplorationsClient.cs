@@ -5,6 +5,12 @@ namespace CardExplorer.Client.Features.Explorations;
 
 public class ExplorationsClient(HttpClient httpClient) : IExplorationsClient
 {
+    public Task DeleteExplorationAsync(DeleteExplorationRequest request, CancellationToken ct = default)
+    {
+        var url = $"explorations/{request.Id}";
+        return httpClient.DeleteAsync(url, ct);
+    }
+
     public async Task<List<ExplorationSummaryDto>> GetExplorationsAsync(GetExplorationsRequest request, CancellationToken ct = default)
     {
         var query = request.Name is not null ? $"?Name={Uri.EscapeDataString(request.Name)}" : string.Empty;

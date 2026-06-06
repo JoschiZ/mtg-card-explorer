@@ -15,6 +15,8 @@ public class AddSeenCardToExplorationRequest
     public required ScryfallCardId CardId { get; init; }
 }
 
+public record DeleteExplorationRequest(ExplorationId Id);
+
 public class CreateExplorationRequest
 {
     public required string Name { get; set; }
