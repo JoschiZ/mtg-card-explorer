@@ -46,7 +46,7 @@ public class ScryfallSearchClient : ScryfallBaseClient
 
         while (response is { HasMore: true, NextPage: not null })
         {
-            response =  await GetFromJsonAsync<ResultList<ScryfallCard>>(response.NextPage.AbsolutePath, cancellationToken);
+            response =  await GetFromJsonAsync<ResultList<ScryfallCard>>(response.NextPage.ToString(), cancellationToken);
 
             foreach (var card in response.Data)
             {
