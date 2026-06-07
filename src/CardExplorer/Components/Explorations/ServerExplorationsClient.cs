@@ -14,7 +14,7 @@ internal class ServerExplorationsClient(
     public async Task DeleteExplorationAsync(DeleteExplorationRequest request, CancellationToken ct = default)
     {
         var userId = await authenticationStateProvider.GetUserIdAsync();
-        await explorationService.DeleteAsync(userId, request.Id, ct);
+        await explorationService.DeleteAsync(userId, request.ExplorationId, ct);
     }
 
     public async Task<List<ExplorationSummaryDto>> GetExplorationsAsync(GetExplorationsRequest request,

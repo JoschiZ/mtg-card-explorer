@@ -1,5 +1,6 @@
 using CardExplorer.Client.Features.Cards;
 using CardExplorer.Client.Features.Collections;
+using FastEndpoints;
 
 namespace CardExplorer.Client.Features.Explorations;
 
@@ -15,7 +16,7 @@ public class AddSeenCardToExplorationRequest
     public required ScryfallCardId CardId { get; init; }
 }
 
-public record DeleteExplorationRequest(ExplorationId Id);
+public record DeleteExplorationRequest([property: RouteParam]ExplorationId ExplorationId);
 
 public class CreateExplorationRequest
 {

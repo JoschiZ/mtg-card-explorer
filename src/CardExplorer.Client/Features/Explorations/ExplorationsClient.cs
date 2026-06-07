@@ -7,7 +7,7 @@ public class ExplorationsClient(HttpClient httpClient) : IExplorationsClient
 {
     public Task DeleteExplorationAsync(DeleteExplorationRequest request, CancellationToken ct = default)
     {
-        var url = $"explorations/{request.Id}";
+        var url = $"explorations/{request.ExplorationId}";
         return httpClient.DeleteAsync(url, ct);
     }
 
