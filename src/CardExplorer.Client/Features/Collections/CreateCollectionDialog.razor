@@ -1,16 +1,30 @@
 @using CardExplorer.Client.Core
-@using CardExplorer.Client.Features.Collections
 @inject ICollectionsClient CollectionsClient
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
 <MudDialog>
     <TitleContent>
-        New Collection
+        Select a Collection or Create one
     </TitleContent>
     <DialogContent>
         <MudForm Style="width: 100%">
-            <MudTextField T="string" Label="Collection Name" @bind-Value="_request.Name" Required="true" />
+            <MudTextField T="string" Label="Collection Name" @bind-Value="_request.Name" Required="true"/>
         </MudForm>
+        <AuthorizeView>
+            @if (_collections.Length > 0)
+            {
+                <MudDivider DividerType="DividerType.Middle"/>
+                <MudSelect T="CardCollectionDto" @bind-Value="_selectedExistingCollection">
+                    @foreach (var collection in _collections.OrderBy(c => c.Name))
+                    {
+                        <MudSelectItem T="CardCollectionDto" Value="@collection">@collection.Name</MudSelectItem>
+                    }
+                </MudSelect>
+                <MudButton Disabled="@(_selectedExistingCollection is null)" Color="Color.Primary" OnClick="@(() => MudDialog.Close(DialogResult.Ok(_selectedExistingCollection)))">Use Existing Collection</MudButton>
+            } else {
+                <MudAlert Severity="Severity.Info">There seem to be no collections</MudAlert>
+            }
+        </AuthorizeView>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
@@ -23,6 +37,14 @@
     private IMudDialogInstance MudDialog { get; set; } = null!;
     
     private readonly CreateCollectionRequest _request = new() { Name = "" };
+    private CardCollectionDto[] _collections = [];
+    private CardCollectionDto? _selectedExistingCollection;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _collections = await CollectionsClient.GetCollectionsAsync(new GetCollectionsRequest());
+        await base.OnInitializedAsync();
+    }
 
     private async Task Submit()
     {
