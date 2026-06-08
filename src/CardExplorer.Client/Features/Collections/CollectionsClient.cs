@@ -6,7 +6,12 @@ internal class CollectionsClient(HttpClient httpClient) : ICollectionsClient
 {
     public async Task<CardCollectionDto[]> GetCollectionsAsync(GetCollectionsRequest request, CancellationToken ct = default)
     {
-        var url = $"collections?Name={Uri.EscapeDataString(request.Name ?? string.Empty)}";
+        var url = "collections";
+
+        if (request.Name is not null)
+        {
+            url = $"?Name={Uri.EscapeDataString(request.Name)}";
+        }
         return await httpClient.GetFromJsonAsync<CardCollectionDto[]>(url, ct) ?? [];
     }
 

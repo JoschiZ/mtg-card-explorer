@@ -91,12 +91,13 @@
             return;
         }
         _lastSearchString = SearchString;
-        // yes we fetch twice sorry scryfall
-        _firstPage = await SearchClient.SearchAsync(SearchString, null);
         _currentSearchIterator = SearchClient.GetAllAsync(SearchString).GetAsyncEnumerator();
         _cards.Clear();
         _selectedIndex = 0;
+        // yes we fetch twice sorry scryfall
+        var firstPageTask = SearchClient.SearchAsync(SearchString, null);
         await LoadNextCardsAsync();
+        _firstPage = await firstPageTask;
         if (_cards.Count > 0)
         {
             SelectedCard = _cards[_selectedIndex];
