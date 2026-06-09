@@ -140,7 +140,7 @@
         Logger.LogDebug("Loading next cards {amount} ...", ScryfallSearchPageSize);
         _currentlyLoadingNewCards = true;
         var itemsTaken = 0;
-        while (await _currentSearchIterator.MoveNextAsync())
+        while (itemsTaken < ScryfallSearchPageSize && await _currentSearchIterator.MoveNextAsync())
         {
             _cards.Add(_currentSearchIterator.Current);
             itemsTaken++;
