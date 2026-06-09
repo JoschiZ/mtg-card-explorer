@@ -44,7 +44,7 @@ public sealed class ScryfallCard : BaseItem
 {
 
     [JsonIgnore] public bool HasMultipleFaces => CardFaces.Length > 1;
-    [JsonIgnore] public bool IsDoubleSided => Layout is "modal_dfc" or "transform";
+    [JsonIgnore] public bool IsDoubleSided => Layout is "modal_dfc" or "transform" or "art_series";
     public string? GetCardImageUrl() => ImageUris.GetPreferredImageUrl();
 
     /// <summary>

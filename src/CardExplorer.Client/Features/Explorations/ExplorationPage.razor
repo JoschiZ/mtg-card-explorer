@@ -8,6 +8,14 @@
 <MudExitPrompt Disabled="@(Id != Guid.Empty)" Title="Warning Guest Exploration" Text="Your exploration will be lost as soon as you leave this page"></MudExitPrompt>
 <PageTitle>@(Exploration?.Name ?? "Exploration")</PageTitle>
 
+<AuthorizeView>
+    <NotAuthorized>
+        <MudAlert Severity="Severity.Warning" Icon="@Icons.Material.Filled.Warning">
+            This is the sandbox. Your progress will not be saved!
+            Create an account to save your progress.
+        </MudAlert>
+    </NotAuthorized>
+</AuthorizeView>
 @if (_loading)
 {
     <MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
