@@ -108,6 +108,7 @@ internal sealed class ExplorationService
 
         entry.Name = request.Name ?? entry.Name;
         entry.SearchString = request.SearchString ?? entry.SearchString;
+        entry.CurrentPage = request.CurrentPage ?? entry.CurrentPage;
 
         await _db.SaveChangesAsync(cancellationToken);
         return new Success();
@@ -245,7 +246,8 @@ public static class ExplorationExtensions
                     Name = c.Name,
                     UserId = c.UserId,
                     Cards = new ObservableCollection<ScryfallCardId>(c.Cards.Select(card => card.Id))
-                }))
+                })),
+            CurrentPage = exploration.CurrentPage
         };
     }
 
@@ -274,6 +276,7 @@ public static class ExplorationExtensions
                     Name = c.Name,
                     UserId = c.UserId,
                     Cards = new ObservableCollection<ScryfallCardId>(c.Cards.Select(card => card.Id))
-                }))
+                })),
+            CurrentPage = exploration.CurrentPage
         });
 }

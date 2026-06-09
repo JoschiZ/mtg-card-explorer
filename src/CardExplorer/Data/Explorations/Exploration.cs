@@ -11,6 +11,7 @@ public class Exploration
     public ExplorationId Id  { get; private set; } = ExplorationId.FromNewVersion7Guid(); 
     public required string Name { get; set; }
     public required string SearchString  { get; set; }
+    public int? CurrentPage { get; set; }
 
     public List<Card> SeenCards { get; set; } = [];
     public List<CardCollection>  CardCollections { get; set; } = [];

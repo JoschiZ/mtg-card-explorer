@@ -29,4 +29,5 @@ public sealed class ExplorationDto
     public required ObservableCollection<ScryfallCardId> SeenCards { get; init; }
     public required UserId UserId { get; init; }
     public required ObservableCollection<CardCollectionDto> CardCollections { get; init; }
+    public required int? CurrentPage { get; set; }
 }

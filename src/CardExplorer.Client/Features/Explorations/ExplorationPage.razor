@@ -75,9 +75,14 @@ else
                     Id = ExplorationId.From(Guid.Empty),
                     Name = Name ?? "Guest Exploration",
                     SearchString = Search ?? string.Empty,
-                    SeenCards = [],
+                    SeenCards =
+                    [
+                    ],
                     UserId = UserId.From(Guid.Empty),
-                    CardCollections = []
+                    CardCollections =
+                    [
+                    ],
+                    CurrentPage = null
                 };
             }
             else

@@ -28,7 +28,7 @@
 </MudPaper>
 
 <MudPaper Outlined Style="min-height: 350px; display: flex; justify-content: center; align-content: center" Class="main-component carousel-container">
-        <CardCarousel SearchString="@Exploration.SearchString" SelectedCard="_selectedCard" SelectedCardChanged="@OnSelectedCardChanged" SeenCards="Exploration.SeenCards"></CardCarousel>
+        <CardCarousel Exploration="Exploration" StartingPage="Exploration.CurrentPage" SearchString="@Exploration.SearchString" SelectedCard="_selectedCard" SelectedCardChanged="@OnSelectedCardChanged" SeenCards="Exploration.SeenCards"></CardCarousel>
 </MudPaper>
 
 @if (_selectedCard is not null)

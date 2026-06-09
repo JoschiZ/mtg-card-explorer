@@ -1,8 +1,12 @@
 @using CardExplorer.Client.Core.Scryfall
 @using CardExplorer.Client.Core.Scryfall.Models
+@using CardExplorer.Client.Features.Collections
+@using CardExplorer.Client.Features.Explorations
 @inject ScryfallSearchClient SearchClient
 @inject ILogger<Home> Logger
 @inject ISnackbar Snackbar
+@inject IExplorationsClient ExplorerClient
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <div style="width: 100%; padding-bottom: 1rem">
     @if (_firstPage?.Warnings?.Length > 0)
@@ -54,7 +58,7 @@
         </NextButtonTemplate>
     </MudCarousel>
     <div style="display: flex; justify-content: center; position: relative; margin-right: 0.2rem; margin-top: -1rem">
-        <MudText Typo="Typo.h6">(@(_selectedIndex + 1) / @(_firstPage?.TotalCards ?? 0))</MudText>
+        <MudText Typo="Typo.h6">(@(ScryfallIndex) / @(_firstPage?.TotalCards ?? 0))</MudText>
     </div>
 </div>
 
@@ -65,6 +69,11 @@
     private IAsyncEnumerator<ScryfallCard>? _currentSearchIterator;
     private int _selectedIndex;
 
+    /// <summary>
+    /// This is the index inside scryfall. It takes the starting page into account.
+    /// </summary>
+    private int ScryfallIndex => _selectedIndex + 1 + (_startingPage - 1 ?? 0) * ScryfallSearchPageSize;
+
 
     [Parameter] 
     public ICollection<ScryfallCardId> SeenCards { get; set; } = [];
@@ -72,7 +81,12 @@
     public ScryfallCard? SelectedCard { get; set; } 
     [Parameter]
     public EventCallback<ScryfallCard?> SelectedCardChanged { get; set; }
+    [Parameter]
+    public int? StartingPage { get; set; }
+    private int? _startingPage;
     
+    [Parameter, EditorRequired]
+    public required ExplorationDto Exploration { get; set; }
 
     private string? _lastSearchString;
     
@@ -91,7 +105,8 @@
             return;
         }
         _lastSearchString = SearchString;
-        _currentSearchIterator = SearchClient.GetAllAsync(SearchString).GetAsyncEnumerator();
+        _currentSearchIterator = SearchClient.GetAllAsync(SearchString, StartingPage).GetAsyncEnumerator();
+        _startingPage = StartingPage;
         _cards.Clear();
         _selectedIndex = 0;
         // yes we fetch twice sorry scryfall
@@ -111,7 +126,7 @@
     /// Thus this is how much we can simply load without additional IO calls
     /// </summary>
     private const int ScryfallSearchPageSize = 175;
-    private async Task<bool> LoadNextCardsAsync(int entries = ScryfallSearchPageSize)
+    private async Task<bool> LoadNextCardsAsync()
     {
         if (_currentSearchIterator is null)
         {
@@ -122,10 +137,10 @@
         {
             return true;
         }
-        Logger.LogDebug("Loading next cards {amount} ...", entries);
+        Logger.LogDebug("Loading next cards {amount} ...", ScryfallSearchPageSize);
         _currentlyLoadingNewCards = true;
         var itemsTaken = 0;
-        while (itemsTaken < entries && await _currentSearchIterator.MoveNextAsync())
+        while (await _currentSearchIterator.MoveNextAsync())
         {
             _cards.Add(_currentSearchIterator.Current);
             itemsTaken++;
@@ -169,6 +184,23 @@
         _selectedIndex = newIndex;
         SelectedCard = newCard;
         await SelectedCardChanged.InvokeAsync(SelectedCard);
+        
+        
+        var cardPage = (int)Math.Floor(ScryfallIndex / (decimal)ScryfallSearchPageSize) + 1;
+        if (cardPage != Exploration.CurrentPage && Exploration.Id != ExplorationId.From(Guid.Empty))
+        {
+            Exploration.CurrentPage = cardPage;
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            if (authState.User.Identity?.IsAuthenticated == true)
+            {
+                var request = new PatchExplorationRequest
+                {
+                    Id = Exploration.Id,
+                    CurrentPage = cardPage
+                };
+                await ExplorerClient.UpdateExplorationAsync(request);
+            }
+        }
         
         Logger.LogDebug("SelectedIndexChanged: {index}", newIndex);
         if (_cards.Count - newIndex <= 5)

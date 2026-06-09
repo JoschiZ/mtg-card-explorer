@@ -51,4 +51,5 @@ public sealed class PatchExplorationRequest
     public required ExplorationId Id { get; init; }
     public string? Name { get; set; }
     public string? SearchString { get; set; }
+    public int? CurrentPage { get; set; }
 }

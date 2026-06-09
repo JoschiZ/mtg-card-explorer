@@ -34,9 +34,9 @@ public class ScryfallSearchClient : ScryfallBaseClient
     }
 
 
-    public async IAsyncEnumerable<ScryfallCard> GetAllAsync(string query, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<ScryfallCard> GetAllAsync(string query, int? startingPage, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var response = await SearchAsync(query, null, cancellationToken);
+        var response = await SearchAsync(query, startingPage, cancellationToken);
 
         foreach (var card in response.Data)
         {
