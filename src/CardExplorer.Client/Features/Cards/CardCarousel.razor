@@ -42,19 +42,22 @@
             }
         </PreviousButtonTemplate>
         <NextButtonTemplate>
-            <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
-                <div Class="mud-button-root mud-icon-button mud-icon-button-color-inherit mud-ripple mud-ripple-icon">
-                    <span class="mud-icon-button-label">
-                        <MudIcon Class="mud-ripple mud-ripple-icon mud-icon-button-size-medium" Icon="@Icons.Material.Filled.SkipNext" Color="@Color.Inherit"/>
-                    </span>
+            @if (_selectedIndex != _cards.Count - 1)
+            {
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                    <div Class="mud-button-root mud-icon-button mud-icon-button-color-inherit mud-ripple mud-ripple-icon">
+                        <span class="mud-icon-button-label">
+                            <MudIcon Class="mud-ripple mud-ripple-icon mud-icon-button-size-medium" Icon="@Icons.Material.Filled.SkipNext" Color="@Color.Inherit"/>
+                        </span>
+                    </div>
+                    @if (SelectedCard is not null && SeenCards.Contains(SelectedCard.Id))
+                    {
+                        <MudTooltip Text="Skip to next unseen card">
+                            <MudIconButton Icon="@Icons.Material.Filled.Visibility" Color="Color.Inherit" OnClick="@SkipToNextUnseenAsync" Size="Size.Small"/>
+                        </MudTooltip>
+                    }
                 </div>
-                @if (SelectedCard is not null && SeenCards.Contains(SelectedCard.Id))
-                {
-                    <MudTooltip Text="Skip to next unseen card">
-                        <MudIconButton Icon="@Icons.Material.Filled.Visibility" Color="Color.Inherit" OnClick="@SkipToNextUnseenAsync" Size="Size.Small"/>
-                    </MudTooltip>
-                }
-            </div>
+            }
         </NextButtonTemplate>
     </MudCarousel>
     <div style="display: flex; justify-content: center; position: relative; margin-right: 0.2rem; margin-top: -1rem">
