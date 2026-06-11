@@ -246,6 +246,7 @@
         {
             Id = Exploration.Id,
             Name = null,
+            CurrentPage = 1,
             SearchString = _searchString.Trim()
         };
         await ExplorationsClient.UpdateExplorationAsync(request);
