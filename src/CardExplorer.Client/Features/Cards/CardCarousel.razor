@@ -40,6 +40,12 @@
                     </div>
                 </div>
             }
+            @if (_selectedIndex == 0 && CurrentScryfallPage > 1)
+            {
+                <MudTooltip Text="Load older cards">
+                    <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Color="Color.Inherit" OnClick="@LoadPreviousPageAsync"/>
+                </MudTooltip>
+            }
         </PreviousButtonTemplate>
         <NextButtonTemplate>
             @if (_selectedIndex != _cards.Count - 1)
@@ -76,6 +82,8 @@
     /// This is the index inside scryfall. It takes the starting page into account.
     /// </summary>
     private int ScryfallIndex => _selectedIndex + 1 + (_startingPage - 1 ?? 0) * ScryfallSearchPageSize;
+
+    private int CurrentScryfallPage => (int)Math.Floor(ScryfallIndex / (decimal)ScryfallSearchPageSize) + 1;
 
 
     [Parameter] 
@@ -189,17 +197,16 @@
         await SelectedCardChanged.InvokeAsync(SelectedCard);
         
         
-        var cardPage = (int)Math.Floor(ScryfallIndex / (decimal)ScryfallSearchPageSize) + 1;
-        if (cardPage != Exploration.CurrentPage && Exploration.Id != ExplorationId.From(Guid.Empty))
+        if (CurrentScryfallPage != Exploration.CurrentPage && Exploration.Id != ExplorationId.From(Guid.Empty))
         {
-            Exploration.CurrentPage = cardPage;
+            Exploration.CurrentPage = CurrentScryfallPage;
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             if (authState.User.Identity?.IsAuthenticated == true)
             {
                 var request = new PatchExplorationRequest
                 {
                     Id = Exploration.Id,
-                    CurrentPage = cardPage
+                    CurrentPage = CurrentScryfallPage
                 };
                 await ExplorerClient.UpdateExplorationAsync(request);
             }
@@ -211,4 +218,16 @@
             await LoadNextCardsAsync();
         }
     }
+
+    private async Task LoadPreviousPageAsync()
+    {
+        _currentlyLoadingNewCards = true;
+        var pageToLoad = CurrentScryfallPage - 1;
+        var previousPage = await SearchClient.SearchAsync(SearchString, pageToLoad);
+        _cards.InsertRange(0, previousPage.Data);
+        _startingPage = pageToLoad;
+        await SelectedIndexChangedAsync(previousPage.Data.Count - 1);
+        _currentlyLoadingNewCards = false;
+    }
+
 }
